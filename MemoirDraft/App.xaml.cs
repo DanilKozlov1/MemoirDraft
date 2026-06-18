@@ -4,6 +4,7 @@ using MemoirDraft.Repositories.Interfaces;
 using MemoirDraft.Services;
 using MemoirDraft.Services.Interfaces;
 using MemoirDraft.Utils;
+using MemoirDraft.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,7 +55,9 @@ namespace MemoirDraft
             // ViewModels
 
             // Views
-            services.AddTransient<MainWindow>();
+            services.AddTransient<AuthorizationView>();
+            services.AddTransient<LoginPage>();
+            services.AddTransient<RegisterPage>();
 
             Services = services.BuildServiceProvider();
 
@@ -78,7 +81,7 @@ namespace MemoirDraft
                 db.Database.Migrate();
 
                 var startupScope = Services.CreateScope();
-                var win = startupScope.ServiceProvider.GetRequiredService<MainWindow>();
+                var win = startupScope.ServiceProvider.GetRequiredService<AuthorizationView>();
 
                 Log.Information("Приложение запущено.");
                 win.Show();

@@ -41,6 +41,7 @@
 
   <ItemGroup>
     <Folder Include="DTO\" />
+    <Folder Include="Commands\" />
   </ItemGroup>
 
 </Project>

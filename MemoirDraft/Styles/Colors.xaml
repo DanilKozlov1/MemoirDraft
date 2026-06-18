@@ -1,0 +1,20 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Основные цвета -->
+    <SolidColorBrush x:Key="BackgroundBrush" Color="#1A1A1A"/>
+    <SolidColorBrush x:Key="PanelBrush" Color="#2D2D2D"/>
+    <SolidColorBrush x:Key="AccentRedBrush" Color="#8B0000"/>
+    <SolidColorBrush x:Key="AccentRedHoverBrush" Color="#CC0000"/>
+    <SolidColorBrush x:Key="GoldBrush" Color="#C9A84C"/>
+    <SolidColorBrush x:Key="SilverBrush" Color="#A0A0A0"/>
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#E0D5C0"/>
+    <SolidColorBrush x:Key="TextDarkBrush" Color="#1A1A1A"/>
+    <SolidColorBrush x:Key="SecondaryButtonBrush" Color="#3D3D3D"/>
+
+    <!-- Кисти для кнопок -->
+    <SolidColorBrush x:Key="ButtonBackground" Color="#8B0000"/>
+    <SolidColorBrush x:Key="ButtonForeground" Color="#E0D5C0"/>
+    <SolidColorBrush x:Key="ButtonBorderBrush" Color="#C9A84C"/>
+
+</ResourceDictionary>
