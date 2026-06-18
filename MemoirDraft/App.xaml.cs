@@ -51,6 +51,7 @@ namespace MemoirDraft
 
             // Сервисы
             services.AddSingleton<SessionService>();
+            services.AddSingleton<WindowsService>();
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<INoteTypeService, NoteTypeService>();
@@ -58,8 +59,8 @@ namespace MemoirDraft
 
             // ViewModels
             services.AddTransient<AuthorizationViewModel>();
-            services.AddTransient<LoginPageModel>();
-            services.AddTransient<RegisterPageModel>();
+            services.AddTransient<LoginViewModel>();
+            services.AddTransient<RegisterViewModel>();
 
             // Views
             services.AddTransient<AuthorizationView>();

@@ -12,12 +12,12 @@
             </ResourceDictionary.MergedDictionaries>
 
             <!-- DataTemplate для страницы входа -->
-            <DataTemplate DataType="{x:Type viewModels:LoginPageModel}">
+            <DataTemplate DataType="{x:Type viewModels:LoginViewModel}">
                 <views:LoginView />
             </DataTemplate>
 
             <!-- DataTemplate для страницы регистрации -->
-            <DataTemplate DataType="{x:Type viewModels:RegisterPageModel}">
+            <DataTemplate DataType="{x:Type viewModels:RegisterViewModel}">
                 <views:RegisterView />
             </DataTemplate>
 

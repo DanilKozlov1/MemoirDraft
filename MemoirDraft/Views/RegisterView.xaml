@@ -27,8 +27,9 @@
 
             <Button Content="ЗАРЕГИСТРИРОВАТЬСЯ" 
                     x:Name="RegisterButton"
+                    Command="{Binding TestCommand}"
                     Width="185" Height="40"
-                    HorizontalAlignment="Center"/>
+                    HorizontalAlignment="Center" Cursor="Hand"/>
         </StackPanel>
     </Grid>
 </UserControl>

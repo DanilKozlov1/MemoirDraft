@@ -1,4 +1,5 @@
 ﻿using MemoirDraft.Commands;
+using MemoirDraft.Services;
 using MemoirDraft.ViewModels.Abstractions;
 using System.Windows.Input;
 
@@ -6,9 +7,11 @@ namespace MemoirDraft.ViewModels
 {
     public class AuthorizationViewModel : BaseViewModel
     {
+        private readonly WindowsService _windowsService;
+
         private object? _currentPage;
-        private readonly LoginPageModel _loginPage;
-        private readonly RegisterPageModel _registerPage;
+        private readonly LoginViewModel _loginPage;
+        private readonly RegisterViewModel _registerPage;
 
         public object? CurrentPage
         {
@@ -21,8 +24,10 @@ namespace MemoirDraft.ViewModels
         public ICommand CloseCommand { get; }
 
 
-        public AuthorizationViewModel(LoginPageModel loginPage, RegisterPageModel registerPage)
+        public AuthorizationViewModel(WindowsService windowsService, 
+            LoginViewModel loginPage, RegisterViewModel registerPage)
         {
+            _windowsService = windowsService;
             _loginPage = loginPage;
             _registerPage = registerPage;
 
@@ -30,6 +35,7 @@ namespace MemoirDraft.ViewModels
 
             SwitchToLoginCommand = new RelayCommand(() => CurrentPage = _loginPage);
             SwitchToRegisterCommand = new RelayCommand(() => CurrentPage = _registerPage);
+            CloseCommand = new RelayCommand(() => _windowsService.CloseWindow(this));
         }
     }
 }

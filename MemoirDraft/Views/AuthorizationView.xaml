@@ -58,7 +58,7 @@
                         Foreground="{StaticResource TextPrimaryBrush}"
                         FontSize="16" 
                         Cursor="Hand"
-                        Click="CloseButton_Click"
+                        Command="{Binding CloseCommand}"
                         VerticalAlignment="Center" 
                         HorizontalAlignment="Right"/>
             </Grid>
