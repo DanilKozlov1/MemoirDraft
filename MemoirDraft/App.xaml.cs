@@ -4,6 +4,7 @@ using MemoirDraft.Repositories.Interfaces;
 using MemoirDraft.Services;
 using MemoirDraft.Services.Interfaces;
 using MemoirDraft.Utils;
+using MemoirDraft.ViewModels;
 using MemoirDraft.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -49,15 +50,21 @@ namespace MemoirDraft
             services.AddScoped<INoteRepository, NoteRepository>();
 
             // Сервисы
+            services.AddSingleton<SessionService>();
+
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<INoteTypeService, NoteTypeService>();
             services.AddScoped<INoteService, NoteService>();
+
             // ViewModels
+            services.AddTransient<AuthorizationViewModel>();
+            services.AddTransient<LoginPageModel>();
+            services.AddTransient<RegisterPageModel>();
 
             // Views
             services.AddTransient<AuthorizationView>();
-            services.AddTransient<LoginPage>();
-            services.AddTransient<RegisterPage>();
+            services.AddTransient<LoginView>();
+            services.AddTransient<RegisterView>();
 
             Services = services.BuildServiceProvider();
 
@@ -88,7 +95,7 @@ namespace MemoirDraft
             }
             catch (Exception ex)
             {
-                Log.Fatal("Критическая ошибка при инициализации базы данных: {exMessage}", ex);
+                Log.Fatal("Критическая ошибка приложения: {exMessage}", ex);
                 MessageBox.Show("Ошибка запуска. Проверьте логи.", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 Shutdown();

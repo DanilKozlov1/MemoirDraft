@@ -40,11 +40,11 @@
                     <Button x:Name="LoginTabButton" 
                             Content="ВХОД" 
                             Style="{StaticResource TabButton}"
-                            Click="LoginTab_Click"/>
+                            Command="{Binding SwitchToLoginCommand}"/>
                     <Button x:Name="RegisterTabButton" 
                             Content="РЕГИСТРАЦИЯ" 
                             Style="{StaticResource TabButton}"
-                            Click="RegisterTab_Click"/>
+                            Command="{Binding SwitchToRegisterCommand}"/>
                 </StackPanel>
 
                 <!-- Кнопка закрытия -->
@@ -65,8 +65,8 @@
         </Border>
 
         <!-- Область страниц -->
-        <Frame x:Name="ContentFrame" Grid.Row="1" 
-               NavigationUIVisibility="Hidden"
+        <ContentControl  x:Name="ContentFrame" Grid.Row="1" 
+               Content="{Binding CurrentPage}"
                Background="{StaticResource BackgroundBrush}"/>
     </Grid>
 </Window>

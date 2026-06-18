@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using MemoirDraft.ViewModels;
+using System.Windows;
 using System.Windows.Input;
 
 namespace MemoirDraft.Views
@@ -8,28 +9,12 @@ namespace MemoirDraft.Views
     /// </summary>
     public partial class AuthorizationView : Window
     {
-        private readonly LoginPage _loginPage;
-        private readonly RegisterPage _registerPage;
-
-        public AuthorizationView()
+        public AuthorizationView(AuthorizationViewModel viewModel)
         {
             InitializeComponent();
-
-            _loginPage = new LoginPage();
-            _registerPage = new RegisterPage();
-
-            ContentFrame.Navigate(_loginPage);
+            DataContext = viewModel;
         }
 
-        private void LoginTab_Click(object sender, RoutedEventArgs e)
-        {
-            ContentFrame.Navigate(_loginPage);
-        }
-
-        private void RegisterTab_Click(object sender, RoutedEventArgs e)
-        {
-            ContentFrame.Navigate(_registerPage);
-        }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
