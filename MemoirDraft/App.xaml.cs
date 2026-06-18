@@ -1,6 +1,8 @@
 ﻿using MemoirDraft.Database;
 using MemoirDraft.Repositories;
 using MemoirDraft.Repositories.Interfaces;
+using MemoirDraft.Services;
+using MemoirDraft.Services.Interfaces;
 using MemoirDraft.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -46,7 +48,9 @@ namespace MemoirDraft
             services.AddScoped<INoteRepository, NoteRepository>();
 
             // Сервисы
-
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<INoteTypeService, NoteTypeService>();
+            services.AddScoped<INoteService, NoteService>();
             // ViewModels
 
             // Views
@@ -75,6 +79,8 @@ namespace MemoirDraft
 
                 var startupScope = Services.CreateScope();
                 var win = startupScope.ServiceProvider.GetRequiredService<MainWindow>();
+
+                Log.Information("Приложение запущено.");
                 win.Show();
             }
             catch (Exception ex)

@@ -1,0 +1,15 @@
+﻿using MemoirDraft.Database.Models;
+
+namespace MemoirDraft.Services.Interfaces
+{
+    public interface INoteService
+    {
+        Task<Note?> GetByIdAsync(int id);
+        Task<List<Note>?> GetAllByUserAsync(int userId);
+        Task<List<Note>?> GetAllByNoteTypeAsync(int userId, int noteTypeId);
+        Task<List<Note>?> GetFavoriteNotesAsync(int userId);
+        Task CreateAsync(Note note);
+        Task<bool> UpdateAsync(Note note);
+        Task<bool> DeleteAsync(int id);
+    }
+}

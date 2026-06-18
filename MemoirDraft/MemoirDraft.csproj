@@ -40,7 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\Interfaces\" />
+    <Folder Include="DTO\" />
   </ItemGroup>
 
 </Project>
