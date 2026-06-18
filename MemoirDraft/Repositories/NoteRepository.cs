@@ -18,9 +18,6 @@ namespace MemoirDraft.Repositories
 
         public async Task<Note?> GetByIdAsync(int id) => await _context.Notes.FindAsync(id);
 
-        public async Task<Note?> GetByTitleAsync(string title) 
-            => await _context.Notes.FirstOrDefaultAsync(n => n.Title == title);
-
         public async Task<List<Note>> GetAllByUserAsync(int userId)
         {
             return await _context.Notes

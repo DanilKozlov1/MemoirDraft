@@ -49,7 +49,8 @@ namespace MemoirDraft
 
             // Сервисы
             services.AddScoped<IUserService, UserService>();
-
+            services.AddScoped<INoteTypeService, NoteTypeService>();
+            services.AddScoped<INoteService, NoteService>();
             // ViewModels
 
             // Views
