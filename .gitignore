@@ -1,0 +1,23 @@
+# Visual Studio
+.vs/
+bin/
+obj/
+
+# Папки с резервными копиями и загруженными файлами
+backups/
+uploads/
+
+# Configuration files
+appsettings.json
+appsettings.*.json
+!appsettings.Example.json
+
+# User files
+*.user
+*.suo
+*.cache
+*.env
+
+# Rider / Resharper (на всякий)
+.idea/
+*.DotSettings.user
