@@ -30,6 +30,12 @@ namespace MemoirDraft.ViewModels
             _windowsService = windowsService;
 
             _loginPage = loginPage;
+            _loginPage.CloseRequested += () =>
+            {
+                _windowsService.OpenMainWindow();
+                _windowsService.CloseWindow(this);
+            };
+
             _registerPage = registerPage;
             _registerPage.RegistrationSuccess += () => CurrentPage = _loginPage;
 

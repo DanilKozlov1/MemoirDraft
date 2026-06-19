@@ -3,7 +3,6 @@ using MemoirDraft.Database.Models;
 using MemoirDraft.Services;
 using MemoirDraft.Services.Interfaces;
 using MemoirDraft.ViewModels.Abstractions;
-using System.Windows;
 using System.Windows.Input;
 
 namespace MemoirDraft.ViewModels
@@ -68,9 +67,6 @@ namespace MemoirDraft.ViewModels
             }
 
             _sessionService.CurrentUser = user;
-
-            // Временное
-            MessageBox.Show("ENTER");
             CloseRequested?.Invoke();
         }
     }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using MemoirDraft.Views;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Windows;
 
@@ -52,6 +53,9 @@ namespace MemoirDraft.Services
 
             win.Show();
             _openedWindows[type] = win;
+
+            if (typeof(TView) != typeof(AuthorizationView))
+                Application.Current.MainWindow = win;
         }
 
         /// <summary>
@@ -77,6 +81,10 @@ namespace MemoirDraft.Services
 
             return result;
         }
+
+        public void OpenAuthorization() => OpenWindow<AuthorizationView>();
+
+        public void OpenMainWindow() => OpenWindow<MainWindow>();
 
         /// <summary>
         /// Закрытие окна

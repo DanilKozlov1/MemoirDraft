@@ -61,11 +61,13 @@ namespace MemoirDraft
             services.AddTransient<AuthorizationViewModel>();
             services.AddTransient<LoginViewModel>();
             services.AddTransient<RegisterViewModel>();
+            services.AddTransient<MainWindowModel>();
 
             // Views
             services.AddTransient<AuthorizationView>();
             services.AddTransient<LoginView>();
             services.AddTransient<RegisterView>();
+            services.AddTransient<MainWindow>();
 
             Services = services.BuildServiceProvider();
 
@@ -89,7 +91,7 @@ namespace MemoirDraft
                 db.Database.Migrate();
 
                 var startupScope = Services.CreateScope();
-                var win = startupScope.ServiceProvider.GetRequiredService<AuthorizationView>();
+                var win = startupScope.ServiceProvider.GetRequiredService<MainWindow>();
 
                 Log.Information("Приложение запущено.");
                 win.Show();
