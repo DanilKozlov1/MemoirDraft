@@ -15,14 +15,26 @@
 
             <Label Content="Имя пользователя" 
                    Foreground="{StaticResource TextPrimaryBrush}"/>
-            <TextBox x:Name="LoginUsernameBox" Margin="0,0,0,15"/>
+            <TextBox x:Name="LoginUsernameBox"
+                     Text="{Binding Username}"
+                     Margin="0,0,0,15"/>
 
             <Label Content="Пароль" 
                    Foreground="{StaticResource TextPrimaryBrush}"/>
-            <TextBox x:Name="LoginPasswordBox" Margin="0,0,0,30"/>
+            <TextBox x:Name="LoginPasswordBox"
+                     Text="{Binding Password}"
+                     Margin="0,0,0,30"/>
 
+            <TextBlock Text="{Binding ErrorMessage}" 
+               Foreground="Red" 
+               FontWeight="SemiBold"
+               HorizontalAlignment="Center"
+               Margin="0,0,0,15"
+               Visibility="{Binding ErrorMessage, Converter={StaticResource NullOrEmptyToVisibility}}"/>
+            
             <Button Content="ВОЙТИ" 
                     x:Name="LoginButton"
+                    Command="{Binding LoginCommand}"
                     Width="160" Height="40"
                     HorizontalAlignment="Center"/>
         </StackPanel>

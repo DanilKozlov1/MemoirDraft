@@ -1,26 +1,92 @@
 ﻿using MemoirDraft.Commands;
-using MemoirDraft.Services;
+using MemoirDraft.Database.Models;
+using MemoirDraft.Services.Interfaces;
 using MemoirDraft.ViewModels.Abstractions;
-using System.Windows;
 using System.Windows.Input;
 
 namespace MemoirDraft.ViewModels
 {
     public class RegisterViewModel : BaseViewModel
     {
-        private SessionService _sessionService;
+        private readonly IUserService _userService;
 
-        public ICommand TestCommand { get; }
+        private string? _username;
+        private string? _password;
 
-
-        public RegisterViewModel(SessionService sessionService)
+        public string? Username
         {
-            _sessionService = sessionService;
+            get => _username;
+            set => SetProperty(ref _username, value);
+        }
 
-            TestCommand = new RelayCommand(() =>
+        public string? Password
+        {
+            get => _password;
+            set => SetProperty(ref _password, value);
+        }
+
+        public ICommand RegistrationCommand { get; }
+
+        public event Action? RegistrationSuccess;
+
+
+        public RegisterViewModel(IUserService userService)
+        {
+            _userService = userService;
+
+            RegistrationCommand = new RelayCommandAsync(
+                execute: () => TryRunTaskAsync(SaveUserAsync, "Ошибка создания пользователя"),
+                canExecute: () => !IsBusy
+            );
+        }
+
+
+        private bool ValidateProperty()
+        {
+            if (string.IsNullOrEmpty(Username))
             {
-                MessageBox.Show("Test");
-            });
+                ErrorMessage = "Поле логина не заполнено";
+                return false;
+            }
+            if (string.IsNullOrEmpty(Password))
+            {
+                ErrorMessage = "Поле пароля не заполнено";
+                return false;
+            }
+
+            return true;
+        }
+
+        private async Task SaveUserAsync()
+        {
+            ErrorMessage = null;
+
+            if (!ValidateProperty())
+                return;
+
+            var existing = await _userService.GetByUserNameAsync(Username!);
+            if (existing != null)
+            {
+                ErrorMessage = "Пользователь с таким именем уже существует";
+                return;
+            }
+
+            var user = new User
+            {
+                Username = Username!,
+                Password = Password!
+            };
+
+            try
+            {
+                await _userService.CreateAsync(user);
+                RegistrationSuccess?.Invoke();
+                ErrorMessage = null;
+            }
+            catch
+            {
+                ErrorMessage = "Ошибка при сохранении пользователя. Проверьте логи.";
+            }
         }
     }
 }

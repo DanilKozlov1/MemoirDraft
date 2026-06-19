@@ -28,8 +28,10 @@ namespace MemoirDraft.ViewModels
             LoginViewModel loginPage, RegisterViewModel registerPage)
         {
             _windowsService = windowsService;
+
             _loginPage = loginPage;
             _registerPage = registerPage;
+            _registerPage.RegistrationSuccess += () => CurrentPage = _loginPage;
 
             CurrentPage = _loginPage;
 

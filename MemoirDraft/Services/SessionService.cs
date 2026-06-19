@@ -10,19 +10,19 @@ namespace MemoirDraft.Services
         /// <summary>
         /// Текущий пользователь
         /// </summary>
-        private User? _currentClient;
+        private User? _currentUser;
 
         /// <summary>
         /// Текущий пользователь
         /// </summary>
-        public User? CurrentClient
+        public User? CurrentUser
         {
-            get => _currentClient;
+            get => _currentUser;
             set
             {
-                if (_currentClient?.Id != value?.Id)
+                if (_currentUser?.Id != value?.Id)
                 {
-                    _currentClient = value;
+                    _currentUser = value;
                     CurrentUserChanged?.Invoke();
                 }
             }
