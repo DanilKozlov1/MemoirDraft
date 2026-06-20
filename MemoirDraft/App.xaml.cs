@@ -59,15 +59,21 @@ namespace MemoirDraft
 
             // ViewModels
             services.AddTransient<AuthorizationViewModel>();
-            services.AddTransient<LoginViewModel>();
-            services.AddTransient<RegisterViewModel>();
+            services.AddTransient<LoginPageModel>();
+            services.AddTransient<RegisterPageModel>();
             services.AddTransient<MainWindowModel>();
+            services.AddTransient<CreateNoteViewModel>();
+            services.AddTransient<SimpleNotePageModel>();
+            services.AddTransient<TodoNotePageModel>();
 
             // Views
             services.AddTransient<AuthorizationView>();
-            services.AddTransient<LoginView>();
-            services.AddTransient<RegisterView>();
+            services.AddTransient<LoginPage>();
+            services.AddTransient<RegisterPage>();
             services.AddTransient<MainWindow>();
+            services.AddTransient<CreateNoteView>();
+            services.AddTransient<SimpleNotePage>();
+            services.AddTransient<TodoNotePage>();
 
             Services = services.BuildServiceProvider();
 

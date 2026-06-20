@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="MemoirDraft.Views.RegisterView"
+﻿<UserControl  x:Class="MemoirDraft.Views.LoginPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       Background="{StaticResource BackgroundBrush}">
@@ -7,7 +7,7 @@
         <StackPanel HorizontalAlignment="Center" 
                     VerticalAlignment="Center" 
                     Width="350">
-            <TextBlock Text="РЕГИСТРАЦИЯ" 
+            <TextBlock Text="ВХОД" 
                        FontSize="24" FontWeight="Bold" 
                        Foreground="{StaticResource GoldBrush}" 
                        HorizontalAlignment="Center"
@@ -15,28 +15,28 @@
 
             <Label Content="Имя пользователя" 
                    Foreground="{StaticResource TextPrimaryBrush}"/>
-            <TextBox x:Name="RegisterUsernameBox" 
+            <TextBox x:Name="LoginUsernameBox"
                      Text="{Binding Username}"
                      Margin="0,0,0,15"/>
 
             <Label Content="Пароль" 
                    Foreground="{StaticResource TextPrimaryBrush}"/>
-            <TextBox x:Name="RegisterPasswordBox" 
+            <TextBox x:Name="LoginPasswordBox"
                      Text="{Binding Password}"
-                     Margin="0,0,0,15"/>
+                     Margin="0,0,0,30"/>
 
             <TextBlock Text="{Binding ErrorMessage}" 
-                   Foreground="Red" 
-                   FontWeight="SemiBold"
-                   HorizontalAlignment="Center"
-                   Margin="0,0,0,15"
-                   Visibility="{Binding ErrorMessage, Converter={StaticResource NullOrEmptyToVisibility}}"/>
-
-            <Button Content="ЗАРЕГИСТРИРОВАТЬСЯ" 
-                    x:Name="RegisterButton"
-                    Command="{Binding RegistrationCommand}"
-                    Width="185" Height="40"
-                    HorizontalAlignment="Center" Cursor="Hand"/>
+               Foreground="Red" 
+               FontWeight="SemiBold"
+               HorizontalAlignment="Center"
+               Margin="0,0,0,15"
+               Visibility="{Binding ErrorMessage, Converter={StaticResource NullOrEmptyToVisibility}}"/>
+            
+            <Button Content="ВОЙТИ" 
+                    x:Name="LoginButton"
+                    Command="{Binding LoginCommand}"
+                    Width="160" Height="40"
+                    HorizontalAlignment="Center"/>
         </StackPanel>
     </Grid>
 </UserControl>

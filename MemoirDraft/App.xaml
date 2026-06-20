@@ -16,13 +16,23 @@
             <converters:NullToVisibilityConverter x:Key="NullOrEmptyToVisibility"/>
 
             <!-- DataTemplate для страницы входа -->
-            <DataTemplate DataType="{x:Type viewModels:LoginViewModel}">
-                <views:LoginView />
+            <DataTemplate DataType="{x:Type viewModels:LoginPageModel}">
+                <views:LoginPage />
             </DataTemplate>
 
             <!-- DataTemplate для страницы регистрации -->
-            <DataTemplate DataType="{x:Type viewModels:RegisterViewModel}">
-                <views:RegisterView />
+            <DataTemplate DataType="{x:Type viewModels:RegisterPageModel}">
+                <views:RegisterPage />
+            </DataTemplate>
+
+            <!-- DataTemplate для простой заметки -->
+            <DataTemplate DataType="{x:Type viewModels:SimpleNotePageModel}">
+                <views:SimpleNotePage />
+            </DataTemplate>
+
+            <!-- DataTemplate для todo заметки -->
+            <DataTemplate DataType="{x:Type viewModels:TodoNotePageModel}">
+                <views:TodoNotePage />
             </DataTemplate>
 
         </ResourceDictionary>

@@ -2,9 +2,9 @@
 
 namespace MemoirDraft.Views
 {
-    public partial class RegisterView : UserControl
+    public partial class RegisterPage : UserControl
     {
-        public RegisterView() 
+        public RegisterPage() 
         {
             InitializeComponent();
         }

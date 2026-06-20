@@ -6,7 +6,7 @@ using System.Windows.Input;
 
 namespace MemoirDraft.ViewModels
 {
-    public class RegisterViewModel : BaseViewModel
+    public class RegisterPageModel : BaseViewModel
     {
         private readonly IUserService _userService;
 
@@ -30,7 +30,7 @@ namespace MemoirDraft.ViewModels
         public event Action? RegistrationSuccess;
 
 
-        public RegisterViewModel(IUserService userService)
+        public RegisterPageModel(IUserService userService)
         {
             _userService = userService;
 

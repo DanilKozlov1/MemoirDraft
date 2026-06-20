@@ -187,7 +187,10 @@ namespace MemoirDraft.ViewModels
 
         private async Task CreateNoteAsync()
         {
-            // TODO: открыть окно создания заметки
+            var result = _windowsService.OpenCreateNote();
+
+            if (result == true) 
+                await LoadNotesAsync();
         }
 
         private async Task OpenNoteAsync(object parameter)

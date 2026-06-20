@@ -10,8 +10,8 @@ namespace MemoirDraft.ViewModels
         private readonly WindowsService _windowsService;
 
         private object? _currentPage;
-        private readonly LoginViewModel _loginPage;
-        private readonly RegisterViewModel _registerPage;
+        private readonly LoginPageModel _loginPage;
+        private readonly RegisterPageModel _registerPage;
 
         public object? CurrentPage
         {
@@ -25,7 +25,7 @@ namespace MemoirDraft.ViewModels
 
 
         public AuthorizationViewModel(WindowsService windowsService, 
-            LoginViewModel loginPage, RegisterViewModel registerPage)
+            LoginPageModel loginPage, RegisterPageModel registerPage)
         {
             _windowsService = windowsService;
 

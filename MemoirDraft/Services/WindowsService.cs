@@ -86,6 +86,8 @@ namespace MemoirDraft.Services
 
         public void OpenMainWindow() => OpenWindow<MainWindow>();
 
+        public bool? OpenCreateNote() => OpenModalWindow<CreateNoteView>();
+
         /// <summary>
         /// Закрытие окна
         /// </summary>
@@ -105,6 +107,30 @@ namespace MemoirDraft.Services
                     target.GetType().Name
                 );
 
+                window.Close();
+            }
+        }
+        /// <summary>
+        /// Закрытие модального окна
+        /// </summary>
+        /// <param name="dataContext">Контекст нужного окна</param>
+        /// <param name="dialogResult">Результат диалога</param>
+        public void CloseWindow(object dataContext, bool dialogResult)
+        {
+            var target = dataContext ?? this;
+
+            var window = Application.Current.Windows
+                .OfType<Window>()
+                .FirstOrDefault(w => w.DataContext == target);
+
+            if (window != null)
+            {
+                _logger.LogInformation(
+                    "Запрос на закрытие окна для ViewModel: {ViewModelName}",
+                    target.GetType().Name
+                );
+
+                window.DialogResult = dialogResult;
                 window.Close();
             }
         }

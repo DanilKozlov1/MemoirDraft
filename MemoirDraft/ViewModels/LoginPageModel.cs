@@ -7,7 +7,7 @@ using System.Windows.Input;
 
 namespace MemoirDraft.ViewModels
 {
-    public class LoginViewModel : BaseViewModel
+    public class LoginPageModel : BaseViewModel
     {
         private SessionService _sessionService;
         private readonly IUserService _userService;
@@ -32,7 +32,7 @@ namespace MemoirDraft.ViewModels
         public event Action? CloseRequested;
 
 
-        public LoginViewModel(SessionService sessionService, IUserService userService)
+        public LoginPageModel(SessionService sessionService, IUserService userService)
         {
             _sessionService = sessionService;
             _userService = userService;
