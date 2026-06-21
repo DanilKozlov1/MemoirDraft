@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using MemoirDraft.Database.DTO;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -52,8 +50,8 @@ namespace MemoirDraft.Migrations
                     UserId = table.Column<int>(type: "integer", nullable: false),
                     Title = table.Column<string>(type: "text", nullable: false),
                     NoteTypeId = table.Column<int>(type: "integer", nullable: false),
-                    Content = table.Column<string>(type: "text", nullable: false),
-                    TodoItems = table.Column<List<TodoItem>>(type: "jsonb", nullable: true, defaultValueSql: "'[]'::jsonb"),
+                    Content = table.Column<string>(type: "text", nullable: true),
+                    TodoItems = table.Column<string>(type: "jsonb", nullable: true),
                     IsFavorite = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)

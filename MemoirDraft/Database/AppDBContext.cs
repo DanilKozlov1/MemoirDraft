@@ -21,6 +21,10 @@ namespace MemoirDraft.Database
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Note>()
+                .Property(n => n.Id)
+                .UseIdentityColumn();
+
+            modelBuilder.Entity<Note>()
                 .Property(n => n.TodoItems)
                 .HasColumnType("jsonb")
                 .HasConversion(

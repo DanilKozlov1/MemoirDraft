@@ -37,8 +37,12 @@ namespace MemoirDraft.ViewModels
             SimpleNotePageModel simpleNoteVm, TodoNotePageModel todoNoteVm)
         {
             _windowsService = windowsService;
+
             _simplePage = simpleNoteVm;
             _todoPage = todoNoteVm;
+
+            _simplePage.CloseRequested += OnPageCloseRequested;
+            _todoPage.CloseRequested += OnPageCloseRequested;
 
             _pages = new ObservableCollection<CreateNotePageDto>();
             Pages.Add(new CreateNotePageDto { Name = "📄 Обычная", Content = _simplePage, IsActive = true });
@@ -66,6 +70,11 @@ namespace MemoirDraft.ViewModels
         {
             if (parameter is CreateNotePageDto tab)
                 SetActivePage(tab);
+        }
+
+        private void OnPageCloseRequested(bool? result)
+        {
+            _windowsService.CloseWindow(this, result);
         }
     }
 }

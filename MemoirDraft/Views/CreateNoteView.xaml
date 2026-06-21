@@ -63,10 +63,10 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Button Content="{Binding Name}" 
-                            Margin="0,0,20,0"
-                            Command="{Binding DataContext.SwitchPageCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                            CommandParameter="{Binding}"
-                            Cursor="Hand">
+                                Margin="0,0,20,0"
+                                Command="{Binding DataContext.SwitchPageCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                CommandParameter="{Binding}"
+                                Cursor="Hand">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource TabButton}">
                                     <Style.Triggers>
@@ -85,8 +85,8 @@
 
         <!-- Область страниц -->
         <ContentControl Grid.Row="2" 
-                        Content="{Binding ActivePage.Content}"
-                        Background="{StaticResource BackgroundBrush}"
-                        Margin="20"/>
+                Content="{Binding ActivePage.Content}"
+                Background="{StaticResource BackgroundBrush}"
+                Margin="20"/>
     </Grid>
 </Window>

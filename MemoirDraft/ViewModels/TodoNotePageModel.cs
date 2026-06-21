@@ -1,5 +1,6 @@
 ﻿using MemoirDraft.Commands;
 using MemoirDraft.Database.DTO;
+using MemoirDraft.Database.Models;
 using MemoirDraft.Services;
 using MemoirDraft.Services.Interfaces;
 using MemoirDraft.ViewModels.Abstractions;
@@ -11,7 +12,6 @@ namespace MemoirDraft.ViewModels
     public class TodoNotePageModel : BaseViewModel
     {
         private readonly SessionService _sessionService;
-        private readonly WindowsService _windowsService;
 
         private readonly INoteService _noteService;
 
@@ -41,20 +41,23 @@ namespace MemoirDraft.ViewModels
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
 
+        public event Action<bool?>? CloseRequested;
 
-        public TodoNotePageModel(SessionService sessionService, WindowsService windowsService,
-            INoteService noteService)
+
+        public TodoNotePageModel(SessionService sessionService, INoteService noteService)
         {
             _sessionService = sessionService;
-            _windowsService = windowsService;
 
             _noteService = noteService;
 
             _todoItems = new ObservableCollection<TodoItem>();
 
             AddTodoCommand = new RelayCommand(AddTodo);
-            SaveCommand = new RelayCommand(_ => Save());
-            CancelCommand = new RelayCommand(_ => Cancel());
+            SaveCommand = new RelayCommandAsync(
+                execute: () => TryRunTaskAsync(Save, "Ошибка сохранения"),
+                canExecute: () => !IsBusy
+            );
+            CancelCommand = new RelayCommand(Cancel);
         }
 
 
@@ -67,16 +70,55 @@ namespace MemoirDraft.ViewModels
             }
         }
 
-        private void Save()
+        private bool ValidateData()
         {
-            // TODO: передать данные в родительскую ViewModel или сервис
-            System.Windows.MessageBox.Show("Сохранение TODO-заметки");
+            if (string.IsNullOrWhiteSpace(Title))
+            {
+                ErrorMessage = "Название не может быть пустым";
+                return false;
+            }
+            if (TodoItems == null || TodoItems.Count == 0)
+            {
+                ErrorMessage = "Добавьте хотя бы одну задачу";
+                return false;
+            }
+
+            return true;
+        }
+
+        private async Task Save()
+        {
+            if (!ValidateData())
+                return;
+
+            var user = _sessionService.CurrentUser;
+            if (user == null)
+            {
+                ErrorMessage = "Пользователь не авторизован";
+                return;
+            }
+
+            var list = TodoItems.ToList();
+
+            Note note = new Note()
+            {
+                UserId = user.Id,
+                NoteTypeId = 2,
+                Title = Title!,
+                TodoItems = list,
+                IsFavorite = false,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            await _noteService.CreateAsync(note);
+
+            CloseRequested?.Invoke(true);
         }
 
         private void Cancel()
         {
-            // TODO: закрыть окно без сохранения
-            System.Windows.MessageBox.Show("Отмена");
+            CloseRequested?.Invoke(false);
         }
     }
 }

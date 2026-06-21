@@ -115,7 +115,7 @@ namespace MemoirDraft.Services
         /// </summary>
         /// <param name="dataContext">Контекст нужного окна</param>
         /// <param name="dialogResult">Результат диалога</param>
-        public void CloseWindow(object dataContext, bool dialogResult)
+        public void CloseWindow(object dataContext, bool? dialogResult)
         {
             var target = dataContext ?? this;
 

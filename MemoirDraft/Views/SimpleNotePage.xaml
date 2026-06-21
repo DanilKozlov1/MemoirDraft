@@ -11,6 +11,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Разделитель -->
@@ -28,8 +29,17 @@
                  Padding="10" FontSize="14"
                  MinHeight="150"/>
 
+        <!-- Сообщение об ошибке -->
+        <TextBlock Grid.Row="5" 
+                   Text="{Binding ErrorMessage}" 
+                   Foreground="Red" 
+                   FontWeight="SemiBold"
+                   HorizontalAlignment="Center"
+                   Margin="0,10,0,10"
+                   Visibility="{Binding ErrorMessage, Converter={StaticResource NullOrEmptyToVisibility}}"/>
+        
         <!-- Кнопки -->
-        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+        <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
             <Button Content="ОТМЕНА" Style="{StaticResource SecondaryButton}" 
                     Command="{Binding CancelCommand}" Margin="0,0,15,0" Width="100" Height="35"/>
             <Button Content="СОХРАНИТЬ" Command="{Binding SaveCommand}" Width="115" Height="35"/>

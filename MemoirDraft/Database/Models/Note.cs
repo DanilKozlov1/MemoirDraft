@@ -9,7 +9,7 @@ namespace MemoirDraft.Database.Models
         public int UserId { get; set; }
         public required string Title { get; set; }
         public int NoteTypeId { get; set; }
-        public required string Content { get; set; }
+        public string? Content { get; set; }
         [Column(TypeName = "jsonb")]
         public List<TodoItem>? TodoItems { get; set; }
         public bool IsFavorite { get; set; }

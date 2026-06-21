@@ -1,4 +1,5 @@
 ﻿using MemoirDraft.Commands;
+using MemoirDraft.Database.Models;
 using MemoirDraft.Services;
 using MemoirDraft.Services.Interfaces;
 using MemoirDraft.ViewModels.Abstractions;
@@ -9,7 +10,6 @@ namespace MemoirDraft.ViewModels
     public class SimpleNotePageModel : BaseViewModel
     {
         private readonly SessionService _sessionService;
-        private readonly WindowsService _windowsService;
 
         private readonly INoteService _noteService;
 
@@ -31,30 +31,69 @@ namespace MemoirDraft.ViewModels
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
 
+        public event Action<bool?>? CloseRequested;
 
-        public SimpleNotePageModel(SessionService sessionService, WindowsService windowsService,
-            INoteService noteService)
+
+        public SimpleNotePageModel(SessionService sessionService, INoteService noteService)
         {
             _sessionService = sessionService;
-            _windowsService = windowsService;
 
             _noteService = noteService;
 
-            SaveCommand = new RelayCommand(_ => Save());
-            CancelCommand = new RelayCommand(_ => Cancel());
+            SaveCommand = new RelayCommandAsync(
+                execute: () => TryRunTaskAsync(Save, "Ошибка создания заметки"),
+                canExecute: () => !IsBusy
+            );
+            CancelCommand = new RelayCommand(Cancel);
         }
 
 
-        private void Save()
+        private bool ValidateData()
         {
-            // TODO: передать данные в родительскую ViewModel или сервис
-            System.Windows.MessageBox.Show("Сохранение простой заметки");
+            if (string.IsNullOrWhiteSpace(Title))
+            {
+                ErrorMessage = "Название не может быть пустым";
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(Content))
+            {
+                ErrorMessage = "Содержимое не может быть пустым";
+                return false;
+            }
+
+            return true;
+        }
+
+        private async Task Save()
+        {
+            if (!ValidateData())
+                return;
+
+            var user = _sessionService.CurrentUser;
+            if (user == null)
+            {
+                ErrorMessage = "Пользователь не авторизован";
+                return;
+            }
+
+            Note note = new Note()
+            {
+                UserId = user.Id,
+                NoteTypeId = 1,
+                Title = Title!,
+                Content = Content,
+                IsFavorite = false,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            await _noteService.CreateAsync(note);
+            CloseRequested?.Invoke(true);
         }
 
         private void Cancel()
         {
-            // TODO: закрыть окно без сохранения
-            System.Windows.MessageBox.Show("Отмена");
+            CloseRequested?.Invoke(false);
         }
     }
 }

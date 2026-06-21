@@ -117,4 +117,44 @@
         </Style.Triggers>
     </Style>
 
+    <Style TargetType="ScrollBar">
+        <Setter Property="Background" Value="#2D2D2D"/>
+        <Setter Property="Width" Value="8"/>
+        <Setter Property="Height" Value="8"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Grid Background="{TemplateBinding Background}">
+                        <Track x:Name="PART_Track"
+                           IsDirectionReversed="False"
+                           Grid.Row="0">
+                            <Track.Resources>
+                                <Style TargetType="Thumb">
+                                    <Setter Property="Background" Value="{StaticResource GoldBrush}"/>
+                                    <Setter Property="BorderBrush" Value="{StaticResource GoldBrush}"/>
+                                    <Setter Property="BorderThickness" Value="1"/>
+                                    <Setter Property="Height" Value="30"/>
+                                    <Setter Property="Width" Value="8"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Border Background="{TemplateBinding Background}" 
+                                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    CornerRadius="4"/>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Track.Resources>
+                            <Track.Thumb>
+                                <Thumb/>
+                            </Track.Thumb>
+                        </Track>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>
