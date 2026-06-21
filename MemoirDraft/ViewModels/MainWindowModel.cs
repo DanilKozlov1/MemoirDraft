@@ -16,6 +16,7 @@ namespace MemoirDraft.ViewModels
 
         private readonly SessionService _sessionService;
         private readonly WindowsService _windowsService;
+        private readonly IFileStorageService _fileService;
 
         private readonly INoteService _noteService;
         private readonly INoteTypeService _noteTypeService;
@@ -64,16 +65,16 @@ namespace MemoirDraft.ViewModels
 
 
         public MainWindowModel(ILogger<MainWindowModel> logger,
-            SessionService sessionService, WindowsService windowsService,
-            INoteService noteService, INoteTypeService noteTypeService,
-            IUserService userService)
+            SessionService sessionService, WindowsService windowsService, IFileStorageService fileService,
+            INoteService noteService, INoteTypeService noteTypeService, IUserService userService)
         {
             _logger = logger;
 
             _sessionService = sessionService;
-            _userService = userService;
-
+            _fileService = fileService;
             _windowsService = windowsService;
+
+            _userService = userService; // Удалить после тестов
 
             _noteService = noteService;
             _noteTypeService = noteTypeService;
@@ -204,10 +205,35 @@ namespace MemoirDraft.ViewModels
 
         private async Task DeleteNoteAsync(object parameter)
         {
-            if (parameter is NoteDto note)
+            if (parameter is not NoteDto noteDto)
+                return;
+
+            try
             {
-                // TODO: удалить через сервис
-                Notes.Remove(note);
+                var success = await _noteService.DeleteAsync(noteDto.Id);
+                if (!success)
+                {
+                    ErrorMessage = "Заметка не найдена в базе данных";
+                    return;
+                }
+
+                try
+                {
+                    await _fileService.DeleteNoteFilesAsync(noteDto.Id);
+                    _logger.LogInformation("Файлы для заметки {NoteId} удалены", noteDto.Id);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Ошибка при удалении файлов заметки {NoteId}", noteDto.Id);
+                }
+
+                Notes.Remove(noteDto);
+                _logger.LogInformation("Заметка {NoteId} удалена", noteDto.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при удалении заметки {NoteId}", noteDto.Id);
+                ErrorMessage = "Ошибка при удалении заметки";
             }
         }
 

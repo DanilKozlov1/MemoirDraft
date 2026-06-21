@@ -52,6 +52,7 @@ namespace MemoirDraft
             // Сервисы
             services.AddSingleton<SessionService>();
             services.AddSingleton<WindowsService>();
+            services.AddSingleton<IFileStorageService, FileStorageService>();
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<INoteTypeService, NoteTypeService>();

@@ -4,6 +4,7 @@ using MemoirDraft.Database.Models;
 using MemoirDraft.Services;
 using MemoirDraft.Services.Interfaces;
 using MemoirDraft.ViewModels.Abstractions;
+using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
@@ -11,9 +12,11 @@ namespace MemoirDraft.ViewModels
 {
     public class TodoNotePageModel : BaseViewModel
     {
+        private readonly ILogger<TodoNotePageModel> _logger;
         private readonly SessionService _sessionService;
 
         private readonly INoteService _noteService;
+        private readonly IFileStorageService _fileService;
 
         private string? _title;
         private string? _newTodoText;
@@ -44,11 +47,14 @@ namespace MemoirDraft.ViewModels
         public event Action<bool?>? CloseRequested;
 
 
-        public TodoNotePageModel(SessionService sessionService, INoteService noteService)
+        public TodoNotePageModel(ILogger<TodoNotePageModel> logger, SessionService sessionService, 
+            INoteService noteService, IFileStorageService fileService)
         {
+            _logger = logger;
             _sessionService = sessionService;
 
             _noteService = noteService;
+            _fileService = fileService;
 
             _todoItems = new ObservableCollection<TodoItem>();
 
@@ -112,6 +118,20 @@ namespace MemoirDraft.ViewModels
             };
 
             await _noteService.CreateAsync(note);
+
+            try
+            {
+                await _fileService.SaveNoteFilesAsync(note);
+                _logger.LogInformation("Файлы для заметки {NoteId} сохранены", note.Id);
+            }
+            catch
+            {
+                _logger.LogWarning("Ошибка сохранения файлов. Откат БД для заметки {NoteId}", note.Id);
+                await _noteService.DeleteAsync(note.Id);
+
+                ErrorMessage = "Ошибка сохранения файлов. Заметка не создана.";
+                return;
+            }
 
             CloseRequested?.Invoke(true);
         }

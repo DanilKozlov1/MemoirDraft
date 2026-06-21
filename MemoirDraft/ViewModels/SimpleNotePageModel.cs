@@ -3,15 +3,18 @@ using MemoirDraft.Database.Models;
 using MemoirDraft.Services;
 using MemoirDraft.Services.Interfaces;
 using MemoirDraft.ViewModels.Abstractions;
+using Microsoft.Extensions.Logging;
 using System.Windows.Input;
 
 namespace MemoirDraft.ViewModels
 {
     public class SimpleNotePageModel : BaseViewModel
     {
+        private readonly ILogger<SimpleNotePageModel> _logger;
         private readonly SessionService _sessionService;
 
         private readonly INoteService _noteService;
+        private readonly IFileStorageService _fileService;
 
         private string? _title;
         private string? _content;
@@ -34,11 +37,14 @@ namespace MemoirDraft.ViewModels
         public event Action<bool?>? CloseRequested;
 
 
-        public SimpleNotePageModel(SessionService sessionService, INoteService noteService)
+        public SimpleNotePageModel(ILogger<SimpleNotePageModel> logger, SessionService sessionService, 
+            INoteService noteService, IFileStorageService fileService)
         {
+            _logger = logger;
             _sessionService = sessionService;
 
             _noteService = noteService;
+            _fileService = fileService;
 
             SaveCommand = new RelayCommandAsync(
                 execute: () => TryRunTaskAsync(Save, "Ошибка создания заметки"),
@@ -88,6 +94,21 @@ namespace MemoirDraft.ViewModels
             };
 
             await _noteService.CreateAsync(note);
+
+            try
+            {
+                await _fileService.SaveNoteFilesAsync(note);
+                _logger.LogInformation("Файлы для заметки {NoteId} сохранены", note.Id);
+            }
+            catch
+            {
+                _logger.LogWarning("Ошибка сохранения файлов. Откат БД для заметки {NoteId}", note.Id);
+                await _noteService.DeleteAsync(note.Id);
+
+                ErrorMessage = "Ошибка сохранения файлов. Заметка не создана.";
+                return;
+            }
+
             CloseRequested?.Invoke(true);
         }
 

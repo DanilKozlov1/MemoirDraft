@@ -43,7 +43,7 @@ namespace MemoirDraft.Services
             _logger.LogInformation("Запрос на получение всех заметок пользователя({userId}).", userId);
             try
             {
-                if (_userRepository.GetByIdAsync(userId) == null)
+                if (await _userRepository.GetByIdAsync(userId) == null)
                 {
                     _logger.LogWarning("Пользователя по Id={userId} не найдено или не существует.", userId);
                     return null;
@@ -68,7 +68,7 @@ namespace MemoirDraft.Services
                 userId, noteTypeId);
             try
             {
-                if (_userRepository.GetByIdAsync(userId) == null)
+                if (await _userRepository.GetByIdAsync(userId) == null)
                 {
                     _logger.LogWarning("Пользователя по Id={userId} не найдено или не существует.", userId);
                     return null;
