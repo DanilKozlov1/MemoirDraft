@@ -66,6 +66,7 @@ namespace MemoirDraft
             services.AddTransient<CreateNoteViewModel>();
             services.AddTransient<SimpleNotePageModel>();
             services.AddTransient<TodoNotePageModel>();
+            services.AddTransient<NoteViewModel>();
 
             // Views
             services.AddTransient<AuthorizationView>();
@@ -75,6 +76,7 @@ namespace MemoirDraft
             services.AddTransient<CreateNoteView>();
             services.AddTransient<SimpleNotePage>();
             services.AddTransient<TodoNotePage>();
+            services.AddTransient<NoteView>();
 
             Services = services.BuildServiceProvider();
 

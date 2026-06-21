@@ -12,8 +12,9 @@
                 <ResourceDictionary Source="Styles/Controls.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- Конвертер -->
+            <!-- Конвертеры -->
             <converters:NullToVisibilityConverter x:Key="NullOrEmptyToVisibility"/>
+            <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
 
             <!-- DataTemplate для страницы входа -->
             <DataTemplate DataType="{x:Type viewModels:LoginPageModel}">

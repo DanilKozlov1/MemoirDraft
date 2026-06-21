@@ -1,4 +1,7 @@
-﻿using MemoirDraft.Views;
+﻿using MemoirDraft.DTO;
+using MemoirDraft.Services.Interfaces;
+using MemoirDraft.ViewModels;
+using MemoirDraft.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Windows;
@@ -81,12 +84,48 @@ namespace MemoirDraft.Services
 
             return result;
         }
+        /// <summary>
+        /// Открытие модального окна с возможностью настройки
+        /// </summary>
+        private bool? OpenModalWindow<TView>(Action<TView>? configure = null) where TView : Window
+        {
+            var type = typeof(TView);
+            _logger.LogInformation(
+                "Открытие модального диалогового окна: {WindowName}.", 
+                type.Name
+            );
+
+            var win = _services.GetRequiredService<TView>();
+            configure?.Invoke(win);
+
+            var result = win.ShowDialog();
+            _logger.LogInformation(
+                "Модальное окно {WindowName} закрыто. DialogResult: {Result}",
+                type.Name, result
+            );
+
+            return result;
+        }
 
         public void OpenAuthorization() => OpenWindow<AuthorizationView>();
 
         public void OpenMainWindow() => OpenWindow<MainWindow>();
 
         public bool? OpenCreateNote() => OpenModalWindow<CreateNoteView>();
+
+        public bool? OpenNoteView(int noteId)
+        {
+            return OpenModalWindow<NoteView>(win =>
+            {
+                var viewModel = new NoteViewModel(
+                    _services.GetRequiredService<ILogger<NoteViewModel>>(),
+                    _services.GetRequiredService<INoteService>(),
+                    this,
+                    noteId
+                );
+                win.DataContext = viewModel;
+            });
+        }
 
         /// <summary>
         /// Закрытие окна

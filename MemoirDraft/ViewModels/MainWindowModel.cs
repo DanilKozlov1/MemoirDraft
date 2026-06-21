@@ -196,10 +196,11 @@ namespace MemoirDraft.ViewModels
 
         private async Task OpenNoteAsync(object parameter)
         {
-            if (parameter is NoteDto note)
+            if (parameter is NoteDto noteDto)
             {
-                // TODO: открыть заметку
-                System.Windows.MessageBox.Show($"Открыть: {note.Title}");
+                var result = _windowsService.OpenNoteView(noteDto.Id);
+                if (result == true)
+                    await LoadNotesAsync();
             }
         }
 
