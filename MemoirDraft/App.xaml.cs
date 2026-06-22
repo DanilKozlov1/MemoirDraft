@@ -28,6 +28,98 @@ namespace MemoirDraft
         public static IServiceProvider? Services { get; private set; }
 
 
+        /// <summary>
+        /// Добавление репозиториев в контейнер
+        /// </summary>
+        /// <param name="services">Контейнер</param>
+        private void AddRepositories(ServiceCollection services)
+        {
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<INoteTypeRepository, NoteTypeRepository>();
+            services.AddScoped<INoteRepository, NoteRepository>();
+        }
+
+        /// <summary>
+        /// Добавление базовых сервисов в контейнер
+        /// </summary>
+        /// <param name="services">Контейнер</param>
+        private void AddBaseServices(ServiceCollection services)
+        {
+            services.AddSingleton<SessionService>();
+            services.AddSingleton<WindowsService>();
+            services.AddSingleton<IFileStorageService, FileStorageService>();
+            services.AddScoped<IUserService, UserService>();
+        }
+
+        /// <summary>
+        /// Добавление сервиса сохранения заметок с учётом StorageMode в контейнер
+        /// </summary>
+        /// <param name="services">Контейнер</param>
+        private void SetStorageMode(ServiceCollection services, string storageMode)
+        {
+            switch (storageMode)
+            {
+                case "FileOnly":
+                    services.AddScoped<INoteTypeService, FileOnlyNoteTypeService>();
+                    services.AddScoped<INoteService, FileOnlyNoteService>();
+
+                    break;
+                case "DatabaseOnly":
+                    services.AddScoped<INoteTypeService, NoteTypeService>();
+                    services.AddScoped<INoteService, NoteService>();
+
+                    break;
+                case "DatabaseAndFile":
+                default:
+                    services.AddScoped<INoteTypeService, NoteTypeService>();
+                    services.AddScoped<NoteService>();
+                    services.AddScoped<FileOnlyNoteService>();
+
+                    services.AddScoped<INoteService>(provider =>
+                    {
+                        var db = provider.GetRequiredService<NoteService>();
+                        var file = provider.GetRequiredService<FileOnlyNoteService>();
+                        var logger = provider.GetRequiredService<ILogger<FullNoteService>>();
+                        return new FullNoteService(logger, db, file);
+                    });
+
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Добавление моделей View в контейнер
+        /// </summary>
+        /// <param name="services">Контейнер</param>
+        private void AddViewModels(ServiceCollection services)
+        {
+            services.AddTransient<AuthorizationViewModel>();
+            services.AddTransient<LoginPageModel>();
+            services.AddTransient<RegisterPageModel>();
+            services.AddTransient<MainWindowModel>();
+            services.AddTransient<CreateNoteViewModel>();
+            services.AddTransient<SimpleNotePageModel>();
+            services.AddTransient<TodoNotePageModel>();
+            services.AddTransient<NoteViewModel>();
+        }
+
+        /// <summary>
+        /// Добавление View в контейнер
+        /// </summary>
+        /// <param name="services">Контейнер</param>
+        private void AddViews(ServiceCollection services)
+        {
+            services.AddTransient<AuthorizationView>();
+            services.AddTransient<LoginPage>();
+            services.AddTransient<RegisterPage>();
+            services.AddTransient<MainWindow>();
+            services.AddTransient<CreateNoteView>();
+            services.AddTransient<SimpleNotePage>();
+            services.AddTransient<TodoNotePage>();
+            services.AddTransient<NoteView>();
+        }
+
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -47,66 +139,16 @@ namespace MemoirDraft
             services.AddDbContext<AppDBContext>(options =>
                 options.UseNpgsql(config.GetConnectionString("Default")));
 
-            // Репозитории
-            services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<INoteTypeRepository, NoteTypeRepository>();
-            services.AddScoped<INoteRepository, NoteRepository>();
+            AddRepositories(services);
 
-            // Сервисы
-            services.AddSingleton<SessionService>();
-            services.AddSingleton<WindowsService>();
-            services.AddSingleton<IFileStorageService, FileStorageService>();
-
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<INoteTypeService, NoteTypeService>();
-            services.AddScoped<INoteService, NoteService>();
+            AddBaseServices(services);
 
             var storageMode = config.GetValue<string>("Storage:Mode") ?? "DatabaseAndFile";
-            switch (storageMode)
-            {
-                case "FileOnly":
-                    services.AddScoped<INoteTypeService, FileOnlyNoteTypeService>();
-                    services.AddScoped<INoteService, FileOnlyNoteService>();
-                    break;
-                case "DatabaseOnly":
-                    services.AddScoped<INoteTypeService, NoteTypeService>();
-                    services.AddScoped<INoteService, NoteService>();
-                    break;
-                case "DatabaseAndFile":
-                default:
-                    services.AddScoped<INoteTypeService, NoteTypeService>();
-                    services.AddScoped<NoteService>();
-                    services.AddScoped<FileOnlyNoteService>();
-                    services.AddScoped<INoteService>(provider =>
-                    {
-                        var db = provider.GetRequiredService<NoteService>();
-                        var file = provider.GetRequiredService<FileOnlyNoteService>();
-                        var logger = provider.GetRequiredService<ILogger<FullNoteService>>();
+            SetStorageMode(services, storageMode);
 
-                        return new FullNoteService(logger, db, file);
-                    });
-                    break;
-            }
+            AddViewModels(services);
 
-            // ViewModels
-            services.AddTransient<AuthorizationViewModel>();
-            services.AddTransient<LoginPageModel>();
-            services.AddTransient<RegisterPageModel>();
-            services.AddTransient<MainWindowModel>();
-            services.AddTransient<CreateNoteViewModel>();
-            services.AddTransient<SimpleNotePageModel>();
-            services.AddTransient<TodoNotePageModel>();
-            services.AddTransient<NoteViewModel>();
-
-            // Views
-            services.AddTransient<AuthorizationView>();
-            services.AddTransient<LoginPage>();
-            services.AddTransient<RegisterPage>();
-            services.AddTransient<MainWindow>();
-            services.AddTransient<CreateNoteView>();
-            services.AddTransient<SimpleNotePage>();
-            services.AddTransient<TodoNotePage>();
-            services.AddTransient<NoteView>();
+            AddViews(services);
 
             Services = services.BuildServiceProvider();
 
