@@ -19,7 +19,6 @@ namespace MemoirDraft.ViewModels
         private readonly SessionService _sessionService;
 
         private readonly INoteService _noteService;
-        private readonly IFileStorageService _fileService;
 
         /// <summary>
         /// Название заметки
@@ -79,13 +78,12 @@ namespace MemoirDraft.ViewModels
 
 
         public TodoNotePageModel(ILogger<TodoNotePageModel> logger, SessionService sessionService, 
-            INoteService noteService, IFileStorageService fileService)
+            INoteService noteService)
         {
             _logger = logger;
             _sessionService = sessionService;
 
             _noteService = noteService;
-            _fileService = fileService;
 
             _todoItems = new ObservableCollection<TodoItem>();
 
@@ -145,35 +143,18 @@ namespace MemoirDraft.ViewModels
                 return;
             }
 
-            var list = TodoItems.ToList();
-
-            Note note = new Note()
+            var note = new Note
             {
                 UserId = user.Id,
                 NoteTypeId = 2,
                 Title = Title!,
-                TodoItems = list,
+                TodoItems = TodoItems.ToList(),
                 IsFavorite = false,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
 
             await _noteService.CreateAsync(note);
-
-            try
-            {
-                await _fileService.SaveNoteFilesAsync(note);
-                _logger.LogInformation("Файлы для заметки {NoteId} сохранены", note.Id);
-            }
-            catch
-            {
-                _logger.LogWarning("Ошибка сохранения файлов. Откат БД для заметки {NoteId}", note.Id);
-                await _noteService.DeleteAsync(note.Id);
-
-                ErrorMessage = "Ошибка сохранения файлов. Заметка не создана.";
-                return;
-            }
-
             CloseRequested?.Invoke(true);
         }
 

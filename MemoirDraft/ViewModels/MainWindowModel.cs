@@ -279,16 +279,6 @@ namespace MemoirDraft.ViewModels
                     return;
                 }
 
-                try
-                {
-                    await _fileService.DeleteNoteFilesAsync(noteDto.Id);
-                    _logger.LogInformation("Файлы для заметки {NoteId} удалены", noteDto.Id);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Ошибка при удалении файлов заметки {NoteId}", noteDto.Id);
-                }
-
                 Notes.Remove(noteDto);
                 _logger.LogInformation("Заметка {NoteId} удалена", noteDto.Id);
             }

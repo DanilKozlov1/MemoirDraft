@@ -3,16 +3,18 @@ using MemoirDraft.Repositories.Interfaces;
 using MemoirDraft.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 
-namespace MemoirDraft.Services
+namespace MemoirDraft.Services.DatabaseNoteMode
 {
     public class NoteService : INoteService
     {
         private readonly ILogger<NoteService> _logger;
+
         private readonly INoteRepository _noteRepository;
         private readonly IUserRepository _userRepository;
 
 
-        public NoteService(ILogger<NoteService> logger, INoteRepository noteRepository, IUserRepository userRepository)
+        public NoteService(ILogger<NoteService> logger, 
+            INoteRepository noteRepository, IUserRepository userRepository)
         {
             _logger = logger;
             _noteRepository = noteRepository;

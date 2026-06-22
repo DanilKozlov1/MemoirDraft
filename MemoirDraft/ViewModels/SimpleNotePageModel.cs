@@ -14,10 +14,9 @@ namespace MemoirDraft.ViewModels
     public class SimpleNotePageModel : BaseViewModel
     {
         private readonly ILogger<SimpleNotePageModel> _logger;
-        private readonly SessionService _sessionService;
 
+        private readonly SessionService _sessionService;
         private readonly INoteService _noteService;
-        private readonly IFileStorageService _fileService;
 
         /// <summary>
         /// Название заметки
@@ -60,14 +59,11 @@ namespace MemoirDraft.ViewModels
         public event Action<bool?>? CloseRequested;
 
 
-        public SimpleNotePageModel(ILogger<SimpleNotePageModel> logger, SessionService sessionService, 
-            INoteService noteService, IFileStorageService fileService)
+        public SimpleNotePageModel(ILogger<SimpleNotePageModel> logger, SessionService sessionService, INoteService noteService)
         {
             _logger = logger;
             _sessionService = sessionService;
-
             _noteService = noteService;
-            _fileService = fileService;
 
             SaveCommand = new RelayCommandAsync(
                 execute: () => TryRunTaskAsync(Save, "Ошибка создания заметки"),
@@ -93,7 +89,6 @@ namespace MemoirDraft.ViewModels
                 ErrorMessage = "Содержимое не может быть пустым";
                 return false;
             }
-
             return true;
         }
 
@@ -112,7 +107,7 @@ namespace MemoirDraft.ViewModels
                 return;
             }
 
-            Note note = new Note()
+            var note = new Note
             {
                 UserId = user.Id,
                 NoteTypeId = 1,
@@ -124,30 +119,12 @@ namespace MemoirDraft.ViewModels
             };
 
             await _noteService.CreateAsync(note);
-
-            try
-            {
-                await _fileService.SaveNoteFilesAsync(note);
-                _logger.LogInformation("Файлы для заметки {NoteId} сохранены", note.Id);
-            }
-            catch
-            {
-                _logger.LogWarning("Ошибка сохранения файлов. Откат БД для заметки {NoteId}", note.Id);
-                await _noteService.DeleteAsync(note.Id);
-
-                ErrorMessage = "Ошибка сохранения файлов. Заметка не создана.";
-                return;
-            }
-
             CloseRequested?.Invoke(true);
         }
 
         /// <summary>
         /// Отмена и закрытие окна
         /// </summary>
-        private void Cancel()
-        {
-            CloseRequested?.Invoke(false);
-        }
+        private void Cancel() => CloseRequested?.Invoke(false);
     }
 }

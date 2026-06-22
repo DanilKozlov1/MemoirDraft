@@ -3,7 +3,7 @@ using MemoirDraft.Repositories.Interfaces;
 using MemoirDraft.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 
-namespace MemoirDraft.Services
+namespace MemoirDraft.Services.DatabaseNoteMode
 {
     public class NoteTypeService : INoteTypeService
     {

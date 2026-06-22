@@ -2,6 +2,8 @@
 using MemoirDraft.Repositories;
 using MemoirDraft.Repositories.Interfaces;
 using MemoirDraft.Services;
+using MemoirDraft.Services.DatabaseNoteMode;
+using MemoirDraft.Services.FileOnlyNoteMode;
 using MemoirDraft.Services.Interfaces;
 using MemoirDraft.Utils;
 using MemoirDraft.ViewModels;
@@ -9,6 +11,7 @@ using MemoirDraft.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Serilog;
 using System.Windows;
 
@@ -57,6 +60,33 @@ namespace MemoirDraft
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<INoteTypeService, NoteTypeService>();
             services.AddScoped<INoteService, NoteService>();
+
+            var storageMode = config.GetValue<string>("Storage:Mode") ?? "DatabaseAndFile";
+            switch (storageMode)
+            {
+                case "FileOnly":
+                    services.AddScoped<INoteTypeService, FileOnlyNoteTypeService>();
+                    services.AddScoped<INoteService, FileOnlyNoteService>();
+                    break;
+                case "DatabaseOnly":
+                    services.AddScoped<INoteTypeService, NoteTypeService>();
+                    services.AddScoped<INoteService, NoteService>();
+                    break;
+                case "DatabaseAndFile":
+                default:
+                    services.AddScoped<INoteTypeService, NoteTypeService>();
+                    services.AddScoped<NoteService>();
+                    services.AddScoped<FileOnlyNoteService>();
+                    services.AddScoped<INoteService>(provider =>
+                    {
+                        var db = provider.GetRequiredService<NoteService>();
+                        var file = provider.GetRequiredService<FileOnlyNoteService>();
+                        var logger = provider.GetRequiredService<ILogger<FullNoteService>>();
+
+                        return new FullNoteService(logger, db, file);
+                    });
+                    break;
+            }
 
             // ViewModels
             services.AddTransient<AuthorizationViewModel>();

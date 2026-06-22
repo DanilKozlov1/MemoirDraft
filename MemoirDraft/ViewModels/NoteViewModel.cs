@@ -162,7 +162,7 @@ namespace MemoirDraft.ViewModels
         /// </summary>
         private async Task SaveAsync()
         {
-            Note? note = await _noteService.GetByIdAsync(_noteId);
+            var note = await _noteService.GetByIdAsync(_noteId);
             if (note == null)
             {
                 ErrorMessage = "Ошибка доступа к заметке";
@@ -170,28 +170,27 @@ namespace MemoirDraft.ViewModels
             }
 
             note.Title = Title;
-            
+            note.UpdatedAt = DateTime.UtcNow;
+
             if (!IsTodo)
+            {
                 note.Content = Content;
+                note.TodoItems = null;
+            }
             else
             {
-                var todoItems = new List<TodoItem>();
-                foreach (var item in TodoItems)
+                note.Content = null;
+                note.TodoItems = TodoItems.Select(item => new TodoItem
                 {
-                    var todoItem = new TodoItem()
-                    {
-                        Id = item.Id,
-                        IsDone = item.IsDone,
-                        Text = item.Text
-                    };
-
-                    todoItems.Add(todoItem);
-                }
-
-                note.TodoItems = todoItems;
+                    Id = item.Id,
+                    Text = item.Text,
+                    IsDone = item.IsDone
+                }).ToList();
             }
 
             await _noteService.UpdateAsync(note);
+            _logger.LogInformation("Заметка {NoteId} обновлена", _noteId);
+
             _windowsService.CloseWindow(this, true);
         }
     }

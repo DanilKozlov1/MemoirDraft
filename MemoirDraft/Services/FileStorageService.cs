@@ -11,32 +11,51 @@ namespace MemoirDraft.Services
     {
         private readonly ILogger<FileStorageService> _logger;
 
-        private readonly string _notesDirectory;
+        private readonly string _baseDirectory;
+        private readonly string _mode;
 
 
         public FileStorageService(ILogger<FileStorageService> logger, IConfiguration config)
         {
             _logger = logger;
-
-            var notesPath = config["FileStorage:NotesPath"] ?? "Notes";
-            _notesDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, notesPath);
             
-            Directory.CreateDirectory(_notesDirectory);
+            var notesPath = config["FileStorage:NotesPath"] ?? "Notes";
+            _mode = config.GetValue<string>("Storage:Mode") ?? "DatabaseAndFile";
+           
+            _baseDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, notesPath);
+            var modeDir = Path.Combine(_baseDirectory, _mode);
+
+            Directory.CreateDirectory(modeDir);
         }
 
+
+        private string GetModeDirectory()
+        {
+            return Path.Combine(_baseDirectory, _mode);
+        }
 
         public async Task SaveNoteFilesAsync(Note note)
         {
             try
             {
+                var modeDir = GetModeDirectory();
                 var safeTitle = string.Join("_", note.Title.Split(Path.GetInvalidFileNameChars()));
                 var fileName = $"{note.Id}_{safeTitle}_{note.CreatedAt:yyyyMMdd_HHmmss}";
-                var basePath = Path.Combine(_notesDirectory, fileName);
+                var basePath = Path.Combine(modeDir, fileName);
+
+                var jsonPath = basePath + ".json";
+                var jsonOptions = new JsonSerializerOptions { WriteIndented = true };
+                var json = JsonSerializer.Serialize(note, jsonOptions);
+
+                await File.WriteAllTextAsync(jsonPath, json);
+                _logger.LogInformation("Сохранён JSON для заметки {NoteId} в {JsonPath}", note.Id, jsonPath);
 
                 if (note.NoteTypeId == 1)
                 {
                     var txtPath = basePath + ".txt";
+
                     await File.WriteAllTextAsync(txtPath, note.Content ?? string.Empty);
+
                     _logger.LogInformation("Сохранена обычная заметка {NoteId} в {TxtPath}", note.Id, txtPath);
                 }
                 else if (note.NoteTypeId == 2)
@@ -50,18 +69,10 @@ namespace MemoirDraft.Services
                             txtContent += $"  [{(item.IsDone ? "x" : " ")}] {item.Text}\n";
                     }
                     else
-                    {
                         txtContent += "  (нет задач)";
-                    }
 
                     await File.WriteAllTextAsync(txtPath, txtContent);
-
-                    var jsonPath = basePath + ".json";
-                    var jsonOptions = new JsonSerializerOptions { WriteIndented = true };
-                    var json = JsonSerializer.Serialize(note, jsonOptions);
-                    
-                    await File.WriteAllTextAsync(jsonPath, json);
-                    _logger.LogInformation("Сохранена TODO-заметка {NoteId} в {TxtPath} и {JsonPath}", note.Id, txtPath, jsonPath);
+                    _logger.LogInformation("Сохранена TODO-заметка {NoteId} в {TxtPath}", note.Id, txtPath);
                 }
             }
             catch (Exception ex)
@@ -77,6 +88,7 @@ namespace MemoirDraft.Services
             {
                 await DeleteNoteFilesAsync(note.Id);
                 await SaveNoteFilesAsync(note);
+
                 _logger.LogInformation("Файлы для заметки {NoteId} обновлены", note.Id);
             }
             catch (Exception ex)
@@ -90,7 +102,9 @@ namespace MemoirDraft.Services
         {
             try
             {
-                var files = Directory.GetFiles(_notesDirectory, $"{noteId}_*");
+                var modeDir = GetModeDirectory();
+                var files = Directory.GetFiles(modeDir, $"{noteId}_*");
+
                 foreach (var file in files)
                 {
                     File.Delete(file);
@@ -101,6 +115,31 @@ namespace MemoirDraft.Services
             {
                 _logger.LogError(ex, "Ошибка при удалении файлов заметки {NoteId}", noteId);
             }
+        }
+
+        public async Task<List<Note>> LoadAllNotesAsync()
+        {
+            var modeDir = GetModeDirectory();
+            var notes = new List<Note>();
+            if (!Directory.Exists(modeDir))
+                return notes;
+
+            var files = Directory.GetFiles(modeDir, "*.json");
+            foreach (var file in files)
+            {
+                try
+                {
+                    var json = await File.ReadAllTextAsync(file);
+                    var note = JsonSerializer.Deserialize<Note>(json);
+                    if (note != null)
+                        notes.Add(note);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Не удалось прочитать файл {File}", file);
+                }
+            }
+            return notes;
         }
     }
 }
