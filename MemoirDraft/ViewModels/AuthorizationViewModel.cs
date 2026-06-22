@@ -5,22 +5,46 @@ using System.Windows.Input;
 
 namespace MemoirDraft.ViewModels
 {
+    /// <summary>
+    /// Модель логики окна AuthorizationView
+    /// </summary>
     public class AuthorizationViewModel : BaseViewModel
     {
         private readonly WindowsService _windowsService;
 
+        /// <summary>
+        /// Текущая страница
+        /// </summary>
         private object? _currentPage;
+        /// <summary>
+        /// Страница входа
+        /// </summary>
         private readonly LoginPageModel _loginPage;
+        /// <summary>
+        /// Страница регистрации
+        /// </summary>
         private readonly RegisterPageModel _registerPage;
 
+        /// <summary>
+        /// Текущая страница
+        /// </summary>
         public object? CurrentPage
         {
             get => _currentPage;
             set => SetProperty(ref _currentPage, value);
         }
 
+        /// <summary>
+        /// Комадна меняющая текущую страницу на _loginPage
+        /// </summary>
         public ICommand SwitchToLoginCommand { get; }
+        /// <summary>
+        /// Команда меняющая текущую страницу на _registerPage
+        /// </summary>
         public ICommand SwitchToRegisterCommand { get; }
+        /// <summary>
+        /// Команда закрытия окна
+        /// </summary>
         public ICommand CloseCommand { get; }
 
 

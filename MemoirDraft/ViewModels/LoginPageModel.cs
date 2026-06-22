@@ -7,28 +7,48 @@ using System.Windows.Input;
 
 namespace MemoirDraft.ViewModels
 {
+    /// <summary>
+    /// Модель логики страницы LoginPage
+    /// </summary>
     public class LoginPageModel : BaseViewModel
     {
         private SessionService _sessionService;
         private readonly IUserService _userService;
 
+        /// <summary>
+        /// Логин
+        /// </summary>
         private string? _username;
+        /// <summary>
+        /// Пароль
+        /// </summary>
         private string? _password;
 
+        /// <summary>
+        /// Логин
+        /// </summary>
         public string? Username
         {
             get => _username;
             set => SetProperty(ref _username, value);
         }
-
+        /// <summary>
+        /// Пароль
+        /// </summary>
         public string? Password
         {
             get => _password;
             set => SetProperty(ref _password, value);
         }
 
+        /// <summary>
+        /// Команда входа
+        /// </summary>
         public ICommand LoginCommand { get; }
 
+        /// <summary>
+        /// Событие, необходимое для закрытия родительского окна
+        /// </summary>
         public event Action? CloseRequested;
 
 
@@ -44,6 +64,9 @@ namespace MemoirDraft.ViewModels
         }
 
 
+        /// <summary>
+        /// Проверка данных и вход
+        /// </summary>
         private async Task CheckAndAuthAsync()
         {
             ErrorMessage = null;

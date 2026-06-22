@@ -11,19 +11,41 @@ using System.Windows.Input;
 
 namespace MemoirDraft.ViewModels
 {
+    /// <summary>
+    /// Модель логики окна NoteView
+    /// </summary>
     public class NoteViewModel : BaseViewModel
     {
-        private readonly WindowsService _windowsService;
         private readonly ILogger<NoteViewModel> _logger;
+        
+        private readonly WindowsService _windowsService;
         private readonly INoteService _noteService;
 
-        private int _noteId;
+        /// <summary>
+        /// Id текущей открытой заметки
+        /// </summary>
+        private readonly int _noteId;
 
+        /// <summary>
+        /// Id типа текущей заметки
+        /// </summary>
         private int _noteTypeId;
+        /// <summary>
+        /// Название текущей заметки
+        /// </summary>
         private string _title = string.Empty;
+        /// <summary>
+        /// Содержимое заметки для типа simple
+        /// </summary>
         private string _content = string.Empty;
+        /// <summary>
+        /// Список пунктов для заметки типа todo
+        /// </summary>
         private ObservableCollection<TodoItemDto> _todoItems;
 
+        /// <summary>
+        /// Id типа текущей заметки
+        /// </summary>
         public int NoteTypeId
         {
             get => _noteTypeId;
@@ -33,29 +55,46 @@ namespace MemoirDraft.ViewModels
                 OnPropertyChanged(nameof(IsTodo));
             }
         }
-
+        /// <summary>
+        /// Является ли заметка списком дел
+        /// </summary>
         public bool IsTodo => NoteTypeId == 2;
-
+        /// <summary>
+        /// Название текущей заметки
+        /// </summary>
         public string Title
         {
             get => _title;
             set => SetProperty(ref _title, value);
         }
-
+        /// <summary>
+        /// Содержимое заметки для типа simple
+        /// </summary>
         public string Content
         {
             get => _content;
             set => SetProperty(ref _content, value);
         }
-
+        /// <summary>
+        /// Список пунктов для заметки типа todo
+        /// </summary>
         public ObservableCollection<TodoItemDto> TodoItems
         {
             get => _todoItems;
             set => SetProperty(ref _todoItems, value);
         }
 
+        /// <summary>
+        /// Команда загрузки данных заметки
+        /// </summary>
         public ICommand LoadCommand { get; }
+        /// <summary>
+        /// Команда сохранения изменений
+        /// </summary>
         public ICommand SaveCommand { get; }
+        /// <summary>
+        /// Команда закрытия окна
+        /// </summary>
         public ICommand CloseCommand { get; }
 
 
@@ -71,8 +110,8 @@ namespace MemoirDraft.ViewModels
             _todoItems = new ObservableCollection<TodoItemDto>();
 
             LoadCommand = new RelayCommandAsync(
-                execute: async (parameter) => await LoadNoteAsync((int)parameter),
-                canExecute: _ => !IsBusy
+                execute: () => TryRunTaskAsync(LoadNoteAsync, "Ошибка загрузки заметки"),
+                canExecute: () => !IsBusy
             );
 
             SaveCommand = new RelayCommandAsync(
@@ -82,12 +121,17 @@ namespace MemoirDraft.ViewModels
 
             CloseCommand = new RelayCommand(() => _windowsService.CloseWindow(this, false));
 
-            LoadCommand.Execute(noteId);
+            LoadCommand.Execute(null);
         }
 
-        private async Task LoadNoteAsync(int noteId)
+
+        /// <summary>
+        /// Загрузка данных заметки
+        /// </summary>
+        /// <param name="noteId">Id передаваемой заметки</param>
+        private async Task LoadNoteAsync()
         {
-            var note = await _noteService.GetByIdAsync(noteId);
+            var note = await _noteService.GetByIdAsync(_noteId);
             if (note == null)
             {
                 ErrorMessage = "Заметка не найдена";
@@ -113,6 +157,9 @@ namespace MemoirDraft.ViewModels
             }
         }
 
+        /// <summary>
+        /// Сохранение изменений заметки
+        /// </summary>
         private async Task SaveAsync()
         {
             Note? note = await _noteService.GetByIdAsync(_noteId);

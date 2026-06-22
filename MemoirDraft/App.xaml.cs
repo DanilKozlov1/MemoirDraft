@@ -86,10 +86,14 @@ namespace MemoirDraft
                 var db = scope.ServiceProvider.GetRequiredService<AppDBContext>();
 
                 if (db.Database.CanConnect())
-                    Log.Information("Успешное подключение к СУБД PostgreSQL.");
+                {
+                    Log.ForContext("SourceContext", "App")
+                        .Information("Успешное подключение к СУБД PostgreSQL.");
+                }
                 else
                 {
-                    Log.Fatal("КРИТИЧЕСКАЯ ОШИБКА: База данных PostgreSQL недоступна или строка подключения неверна.");
+                    Log.ForContext("SourceContext", "App")
+                        .Fatal("КРИТИЧЕСКАЯ ОШИБКА: База данных PostgreSQL недоступна или строка подключения неверна.");
                     MessageBox.Show("Ошибка запуска. Проверьте логи.", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
 
@@ -102,12 +106,14 @@ namespace MemoirDraft
                 var startupScope = Services.CreateScope();
                 var win = startupScope.ServiceProvider.GetRequiredService<MainWindow>();
 
-                Log.Information("Приложение запущено.");
+                Log.ForContext("SourceContext", "App")
+                    .Information("Приложение запущено.");
                 win.Show();
             }
             catch (Exception ex)
             {
-                Log.Fatal("Критическая ошибка приложения: {exMessage}", ex);
+                Log.ForContext("SourceContext", "App")
+                    .Fatal("Критическая ошибка приложения: {exMessage}", ex);
                 MessageBox.Show("Ошибка запуска. Проверьте логи.", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 Shutdown();
@@ -116,7 +122,8 @@ namespace MemoirDraft
 
         protected override void OnExit(ExitEventArgs e)
         {
-            Log.Information("Приложение завершает свою работу.");
+            Log.ForContext("SourceContext", "App")
+                .Information("Приложение завершает свою работу.");
             Log.CloseAndFlush();
 
             base.OnExit(e);

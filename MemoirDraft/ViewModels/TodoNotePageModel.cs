@@ -10,6 +10,9 @@ using System.Windows.Input;
 
 namespace MemoirDraft.ViewModels
 {
+    /// <summary>
+    /// Модель логики страницы TodoNotePage
+    /// </summary>
     public class TodoNotePageModel : BaseViewModel
     {
         private readonly ILogger<TodoNotePageModel> _logger;
@@ -18,32 +21,60 @@ namespace MemoirDraft.ViewModels
         private readonly INoteService _noteService;
         private readonly IFileStorageService _fileService;
 
+        /// <summary>
+        /// Название заметки
+        /// </summary>
         private string? _title;
+        /// <summary>
+        /// Текст пункта списка дел
+        /// </summary>
         private string? _newTodoText;
+        /// <summary>
+        /// Список пунктов списка дел
+        /// </summary>
         private ObservableCollection<TodoItem> _todoItems;
 
+        /// <summary>
+        /// Название заметки
+        /// </summary>
         public string? Title
         {
             get => _title;
             set => SetProperty(ref _title, value);
         }
-
+        /// <summary>
+        /// Текст пункта списка дел
+        /// </summary>
         public string? NewTodoText
         {
             get => _newTodoText;
             set => SetProperty(ref _newTodoText, value);
         }
-
+        /// <summary>
+        /// Список пунктов списка дел
+        /// </summary>
         public ObservableCollection<TodoItem> TodoItems
         {
             get => _todoItems;
             set => SetProperty(ref _todoItems, value);
         }
 
+        /// <summary>
+        /// Команда добавления пункта в список дел
+        /// </summary>
         public ICommand AddTodoCommand { get; }
+        /// <summary>
+        /// Команда сохранения заметки
+        /// </summary>
         public ICommand SaveCommand { get; }
+        /// <summary>
+        /// Команда отмены
+        /// </summary>
         public ICommand CancelCommand { get; }
 
+        /// <summary>
+        /// Событие при завершении работы страницы
+        /// </summary>
         public event Action<bool?>? CloseRequested;
 
 
@@ -67,6 +98,9 @@ namespace MemoirDraft.ViewModels
         }
 
 
+        /// <summary>
+        /// Добавление пункта списка дел
+        /// </summary>
         private void AddTodo()
         {
             if (!string.IsNullOrWhiteSpace(NewTodoText))
@@ -76,6 +110,10 @@ namespace MemoirDraft.ViewModels
             }
         }
 
+        /// <summary>
+        /// Проверка валидности полей
+        /// </summary>
+        /// <returns>true - если поля заполнены, false - если пусты</returns>
         private bool ValidateData()
         {
             if (string.IsNullOrWhiteSpace(Title))
@@ -92,6 +130,9 @@ namespace MemoirDraft.ViewModels
             return true;
         }
 
+        /// <summary>
+        /// Сохранение заметки
+        /// </summary>
         private async Task Save()
         {
             if (!ValidateData())
@@ -136,6 +177,9 @@ namespace MemoirDraft.ViewModels
             CloseRequested?.Invoke(true);
         }
 
+        /// <summary>
+        /// Отмена и закрытие окна 
+        /// </summary>
         private void Cancel()
         {
             CloseRequested?.Invoke(false);

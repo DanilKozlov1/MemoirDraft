@@ -10,6 +10,9 @@ using System.Windows.Input;
 
 namespace MemoirDraft.ViewModels
 {
+    /// <summary>
+    /// Модель логики окна MainWindow
+    /// </summary>
     public class MainWindowModel : BaseViewModel
     {
         private readonly ILogger<MainWindowModel> _logger;
@@ -23,31 +26,65 @@ namespace MemoirDraft.ViewModels
         // Удалить после тестов
         private readonly IUserService _userService;
 
+        /// <summary>
+        /// Список dto заметок для отображения
+        /// </summary>
         private ObservableCollection<NoteDto> _notes;
-
+        /// <summary>
+        /// Список dto типов заметок для отображения и фильтра
+        /// </summary>
         private ObservableCollection<FilterDto> _filters;
+        /// <summary>
+        /// Id выбранного фильтра (типа заметок)
+        /// </summary>
         private int _currentFilterId;
 
+        /// <summary>
+        /// Список dto заметок для отображения
+        /// </summary>
         public ObservableCollection<NoteDto> Notes
         {
             get => _notes;
             set => SetProperty(ref _notes, value);
         }
-
+        /// <summary>
+        /// Список dto типов заметок для отображения и фильтра
+        /// </summary>
         public ObservableCollection<FilterDto> Filters
         {
             get => _filters;
             set => SetProperty(ref _filters, value);
         }
 
+        /// <summary>
+        /// Команда создания новой заметки
+        /// </summary>
         public ICommand CreateNoteCommand { get; }
+        /// <summary>
+        /// Команда открытия заметки
+        /// </summary>
         public ICommand OpenNoteCommand { get; }
+        /// <summary>
+        /// Команда удаления заметки
+        /// </summary>
         public ICommand DeleteNoteCommand { get; }
+        /// <summary>
+        /// Команда фильтрации списка заметок
+        /// </summary>
         public ICommand FilterCommand { get; }
+        /// <summary>
+        /// Команда загрузки данных
+        /// </summary>
         public ICommand LoadDataCommand { get; }
+        /// <summary>
+        /// Команда закрытия окна
+        /// </summary>
         public ICommand CloseCommand { get; }
 
 
+        /// <summary>
+        /// !!! Удалить после тестов
+        /// </summary>
         private async Task LoadUser()
         {
             try
@@ -112,6 +149,9 @@ namespace MemoirDraft.ViewModels
         }
 
 
+        /// <summary>
+        /// Загрузка списка фильтров
+        /// </summary>
         private async Task LoadFiltersAsync()
         {
             var types = await _noteTypeService.GetAllAsync();
@@ -135,6 +175,9 @@ namespace MemoirDraft.ViewModels
             }
         }
 
+        /// <summary>
+        /// Загрузка списка заметок
+        /// </summary>
         private async Task LoadNotesAsync()
         {
             Notes.Clear();
@@ -161,6 +204,9 @@ namespace MemoirDraft.ViewModels
             Notes = new ObservableCollection<NoteDto>(noteDtos);
         }
 
+        /// <summary>
+        /// Загрузка данных
+        /// </summary>
         private async Task LoadDataAsync()
         {
             await LoadUser();
@@ -173,6 +219,10 @@ namespace MemoirDraft.ViewModels
             await LoadNotesAsync();
         }
 
+        /// <summary>
+        /// Применение фильтра
+        /// </summary>
+        /// <param name="parameter">FilterDto</param>
         private async Task FilterAsync(object parameter)
         {
             if (parameter is FilterDto filter)
@@ -186,6 +236,9 @@ namespace MemoirDraft.ViewModels
             }
         }
 
+        /// <summary>
+        /// Открытие окна создания новой заметки (CreateNoteView)
+        /// </summary>
         private async Task CreateNoteAsync()
         {
             var result = _windowsService.OpenCreateNote();
@@ -194,6 +247,10 @@ namespace MemoirDraft.ViewModels
                 await LoadNotesAsync();
         }
 
+        /// <summary>
+        /// Открытие окна содержимого заметки (NoteView)
+        /// </summary>
+        /// <param name="parameter">NoteDto</param>
         private async Task OpenNoteAsync(object parameter)
         {
             if (parameter is NoteDto noteDto)
@@ -204,6 +261,10 @@ namespace MemoirDraft.ViewModels
             }
         }
 
+        /// <summary>
+        /// Удаление заметки из списка
+        /// </summary>
+        /// <param name="parameter">NoteDto</param>
         private async Task DeleteNoteAsync(object parameter)
         {
             if (parameter is not NoteDto noteDto)
@@ -238,6 +299,9 @@ namespace MemoirDraft.ViewModels
             }
         }
 
+        /// <summary>
+        /// Закрытие окна
+        /// </summary>
         private void Close()
         {
             _sessionService.CurrentUser = null;

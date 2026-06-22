@@ -8,6 +8,9 @@ using System.Windows.Input;
 
 namespace MemoirDraft.ViewModels
 {
+    /// <summary>
+    /// Модель логики страницы SimpleNotePage
+    /// </summary>
     public class SimpleNotePageModel : BaseViewModel
     {
         private readonly ILogger<SimpleNotePageModel> _logger;
@@ -16,24 +19,44 @@ namespace MemoirDraft.ViewModels
         private readonly INoteService _noteService;
         private readonly IFileStorageService _fileService;
 
+        /// <summary>
+        /// Название заметки
+        /// </summary>
         private string? _title;
+        /// <summary>
+        /// Содержимое
+        /// </summary>
         private string? _content;
 
+        /// <summary>
+        /// Название заметки
+        /// </summary>
         public string? Title
         {
             get => _title;
             set => SetProperty(ref _title, value);
         }
-
+        /// <summary>
+        /// Содержимое
+        /// </summary>
         public string? Content
         {
             get => _content;
             set => SetProperty(ref _content, value);
         }
 
+        /// <summary>
+        /// Команда сохранения изменений
+        /// </summary>
         public ICommand SaveCommand { get; }
+        /// <summary>
+        /// Команда отмены
+        /// </summary>
         public ICommand CancelCommand { get; }
 
+        /// <summary>
+        /// Событие при завершении работы страницы
+        /// </summary>
         public event Action<bool?>? CloseRequested;
 
 
@@ -54,6 +77,10 @@ namespace MemoirDraft.ViewModels
         }
 
 
+        /// <summary>
+        /// Проверка валидации данных
+        /// </summary>
+        /// <returns>true - если поля не пустые, false - если нет</returns>
         private bool ValidateData()
         {
             if (string.IsNullOrWhiteSpace(Title))
@@ -70,6 +97,9 @@ namespace MemoirDraft.ViewModels
             return true;
         }
 
+        /// <summary>
+        /// Сохранение заметки
+        /// </summary>
         private async Task Save()
         {
             if (!ValidateData())
@@ -112,6 +142,9 @@ namespace MemoirDraft.ViewModels
             CloseRequested?.Invoke(true);
         }
 
+        /// <summary>
+        /// Отмена и закрытие окна
+        /// </summary>
         private void Cancel()
         {
             CloseRequested?.Invoke(false);

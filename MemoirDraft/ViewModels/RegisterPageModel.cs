@@ -6,27 +6,47 @@ using System.Windows.Input;
 
 namespace MemoirDraft.ViewModels
 {
+    /// <summary>
+    /// Модель логики страницы RegisterPage
+    /// </summary>
     public class RegisterPageModel : BaseViewModel
     {
         private readonly IUserService _userService;
 
+        /// <summary>
+        /// Логин
+        /// </summary>
         private string? _username;
+        /// <summary>
+        /// Пароль
+        /// </summary>
         private string? _password;
 
+        /// <summary>
+        /// Логин
+        /// </summary>
         public string? Username
         {
             get => _username;
             set => SetProperty(ref _username, value);
         }
-
+        /// <summary>
+        /// Пароль
+        /// </summary>
         public string? Password
         {
             get => _password;
             set => SetProperty(ref _password, value);
         }
 
+        /// <summary>
+        /// Команда регистрации пользователя
+        /// </summary>
         public ICommand RegistrationCommand { get; }
 
+        /// <summary>
+        /// Событие прошла ли регистрация
+        /// </summary>
         public event Action? RegistrationSuccess;
 
 
@@ -41,6 +61,10 @@ namespace MemoirDraft.ViewModels
         }
 
 
+        /// <summary>
+        /// Проверка валидности полей
+        /// </summary>
+        /// <returns>true - если поля заполнены, false - если пусты</returns>
         private bool ValidateProperty()
         {
             if (string.IsNullOrEmpty(Username))
@@ -57,6 +81,9 @@ namespace MemoirDraft.ViewModels
             return true;
         }
 
+        /// <summary>
+        /// Сохранение нового пользователя
+        /// </summary>
         private async Task SaveUserAsync()
         {
             ErrorMessage = null;
