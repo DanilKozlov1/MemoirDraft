@@ -1,4 +1,5 @@
 ﻿using MemoirDraft.Commands;
+using MemoirDraft.Database.DTO;
 using MemoirDraft.Database.Models;
 using MemoirDraft.DTO;
 using MemoirDraft.Services;
@@ -16,10 +17,24 @@ namespace MemoirDraft.ViewModels
         private readonly ILogger<NoteViewModel> _logger;
         private readonly INoteService _noteService;
 
+        private int _noteId;
+
+        private int _noteTypeId;
         private string _title = string.Empty;
         private string _content = string.Empty;
-        private ObservableCollection<TodoItemDto> _todoItems = new();
-        private int _noteTypeId;
+        private ObservableCollection<TodoItemDto> _todoItems;
+
+        public int NoteTypeId
+        {
+            get => _noteTypeId;
+            set
+            {
+                SetProperty(ref _noteTypeId, value);
+                OnPropertyChanged(nameof(IsTodo));
+            }
+        }
+
+        public bool IsTodo => NoteTypeId == 2;
 
         public string Title
         {
@@ -39,33 +54,21 @@ namespace MemoirDraft.ViewModels
             set => SetProperty(ref _todoItems, value);
         }
 
-        public bool IsTodo => NoteTypeId == 2;
-
-        public int NoteTypeId
-        {
-            get => _noteTypeId;
-            set
-            {
-                SetProperty(ref _noteTypeId, value);
-                OnPropertyChanged(nameof(IsTodo));
-            }
-        }
-
         public ICommand LoadCommand { get; }
         public ICommand SaveCommand { get; }
         public ICommand CloseCommand { get; }
 
-        public event Action<bool?>? CloseRequested;
 
-        public NoteViewModel(
-            ILogger<NoteViewModel> logger,
-            INoteService noteService,
-            WindowsService windowsService,
-            int noteId)
+        public NoteViewModel(ILogger<NoteViewModel> logger, WindowsService windowsService,
+            INoteService noteService, int noteId)
         {
             _logger = logger;
-            _noteService = noteService;
             _windowsService = windowsService;
+
+            _noteService = noteService;
+
+            _noteId = noteId;
+            _todoItems = new ObservableCollection<TodoItemDto>();
 
             LoadCommand = new RelayCommandAsync(
                 execute: async (parameter) => await LoadNoteAsync((int)parameter),
@@ -103,7 +106,7 @@ namespace MemoirDraft.ViewModels
                     TodoItems.Add(new TodoItemDto
                     {
                         Id = item.Id,
-                        Text = item.Text,
+                        Text = item.Text!,
                         IsDone = item.IsDone
                     });
                 }
@@ -112,9 +115,37 @@ namespace MemoirDraft.ViewModels
 
         private async Task SaveAsync()
         {
-            // Сохранение (заглушка)
-            await Task.Delay(100);
-            CloseRequested?.Invoke(true);
+            Note? note = await _noteService.GetByIdAsync(_noteId);
+            if (note == null)
+            {
+                ErrorMessage = "Ошибка доступа к заметке";
+                return;
+            }
+
+            note.Title = Title;
+            
+            if (!IsTodo)
+                note.Content = Content;
+            else
+            {
+                var todoItems = new List<TodoItem>();
+                foreach (var item in TodoItems)
+                {
+                    var todoItem = new TodoItem()
+                    {
+                        Id = item.Id,
+                        IsDone = item.IsDone,
+                        Text = item.Text
+                    };
+
+                    todoItems.Add(todoItem);
+                }
+
+                note.TodoItems = todoItems;
+            }
+
+            await _noteService.UpdateAsync(note);
+            _windowsService.CloseWindow(this, true);
         }
     }
 }

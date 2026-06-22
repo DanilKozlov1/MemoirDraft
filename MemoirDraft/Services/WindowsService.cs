@@ -119,8 +119,8 @@ namespace MemoirDraft.Services
             {
                 var viewModel = new NoteViewModel(
                     _services.GetRequiredService<ILogger<NoteViewModel>>(),
-                    _services.GetRequiredService<INoteService>(),
                     this,
+                    _services.GetRequiredService<INoteService>(),
                     noteId
                 );
                 win.DataContext = viewModel;
