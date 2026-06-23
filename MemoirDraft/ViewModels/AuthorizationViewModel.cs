@@ -1,6 +1,8 @@
 ﻿using MemoirDraft.Commands;
 using MemoirDraft.Services;
 using MemoirDraft.ViewModels.Abstractions;
+using Microsoft.Extensions.Logging;
+using System.Windows;
 using System.Windows.Input;
 
 namespace MemoirDraft.ViewModels
@@ -10,6 +12,8 @@ namespace MemoirDraft.ViewModels
     /// </summary>
     public class AuthorizationViewModel : BaseViewModel
     {
+        private readonly ILogger<MainWindowModel> _logger;
+
         private readonly WindowsService _windowsService;
 
         /// <summary>
@@ -48,9 +52,11 @@ namespace MemoirDraft.ViewModels
         public ICommand CloseCommand { get; }
 
 
-        public AuthorizationViewModel(WindowsService windowsService, 
+        public AuthorizationViewModel(ILogger<MainWindowModel> logger, WindowsService windowsService, 
             LoginPageModel loginPage, RegisterPageModel registerPage)
         {
+            _logger = logger;
+
             _windowsService = windowsService;
 
             _loginPage = loginPage;
@@ -67,7 +73,14 @@ namespace MemoirDraft.ViewModels
 
             SwitchToLoginCommand = new RelayCommand(() => CurrentPage = _loginPage);
             SwitchToRegisterCommand = new RelayCommand(() => CurrentPage = _registerPage);
-            CloseCommand = new RelayCommand(() => _windowsService.CloseWindow(this));
+            CloseCommand = new RelayCommand(Close);
+        }
+
+
+        private void Close()
+        {
+            _logger.LogInformation("Запрос на закрытие окна для ViewModel: {ViewModelName}", this);
+            Application.Current.Shutdown();
         }
     }
 }

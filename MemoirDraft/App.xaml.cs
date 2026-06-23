@@ -176,7 +176,10 @@ namespace MemoirDraft
                 db.Database.Migrate();
 
                 var startupScope = Services.CreateScope();
-                var win = startupScope.ServiceProvider.GetRequiredService<MainWindow>();
+
+                Window win = startupScope.ServiceProvider.GetRequiredService<MainWindow>();
+                if (config.GetValue<string>("Settings:AppMode") == "Auth")
+                    win = startupScope.ServiceProvider.GetRequiredService<AuthorizationView>();
 
                 Log.ForContext("SourceContext", "App")
                     .Information("Приложение запущено.");

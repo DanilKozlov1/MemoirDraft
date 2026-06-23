@@ -4,8 +4,10 @@ using MemoirDraft.Services;
 using MemoirDraft.Services.Interfaces;
 using MemoirDraft.Utils;
 using MemoirDraft.ViewModels.Abstractions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Input;
 
 namespace MemoirDraft.ViewModels
@@ -16,15 +18,13 @@ namespace MemoirDraft.ViewModels
     public class MainWindowModel : BaseViewModel
     {
         private readonly ILogger<MainWindowModel> _logger;
+        private readonly IConfiguration _config;
 
         private readonly SessionService _sessionService;
         private readonly WindowsService _windowsService;
-        private readonly IFileStorageService _fileService;
 
         private readonly INoteService _noteService;
         private readonly INoteTypeService _noteTypeService;
-        // Удалить после тестов
-        private readonly IUserService _userService;
 
         /// <summary>
         /// Список dto заметок для отображения
@@ -82,36 +82,15 @@ namespace MemoirDraft.ViewModels
         public ICommand CloseCommand { get; }
 
 
-        /// <summary>
-        /// !!! Удалить после тестов
-        /// </summary>
-        private async Task LoadUser()
-        {
-            try
-            {
-                var user = await _userService.GetByIdAsync(1);
-                _sessionService.CurrentUser = user;
-                System.Diagnostics.Debug.WriteLine($"Загружен пользователь: {user?.Username ?? "null"}");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Ошибка в LoadUser: {ex.Message}");
-                _logger.LogWarning("Error: {ex}", ex);
-            }
-        }
-
-
-        public MainWindowModel(ILogger<MainWindowModel> logger,
-            SessionService sessionService, WindowsService windowsService, IFileStorageService fileService,
-            INoteService noteService, INoteTypeService noteTypeService, IUserService userService)
+        public MainWindowModel(ILogger<MainWindowModel> logger, IConfiguration config,
+            SessionService sessionService, WindowsService windowsService,
+            INoteService noteService, INoteTypeService noteTypeService)
         {
             _logger = logger;
+            _config = config;
 
             _sessionService = sessionService;
-            _fileService = fileService;
             _windowsService = windowsService;
-
-            _userService = userService; // Удалить после тестов
 
             _noteService = noteService;
             _noteTypeService = noteTypeService;
@@ -209,12 +188,15 @@ namespace MemoirDraft.ViewModels
         /// </summary>
         private async Task LoadDataAsync()
         {
-            await LoadUser();
+            if (_sessionService.NoAuth)
+                await _sessionService.LoadUser();
+
             if (_sessionService.CurrentUser == null)
             {
                 ErrorMessage = "Не удалось загрузить пользователя. Проверьте подключение к БД.";
                 return;
             }
+
             await LoadFiltersAsync();
             await LoadNotesAsync();
         }
@@ -295,8 +277,17 @@ namespace MemoirDraft.ViewModels
         private void Close()
         {
             _sessionService.CurrentUser = null;
-            //_windowsService.OpenAuthorization();
-            _windowsService.CloseWindow(this);
+
+            if (_sessionService.NoAuth)
+            {
+                _logger.LogInformation("Запрос на закрытие окна для ViewModel: {ViewModelName}", this);
+                Application.Current.Shutdown();
+            }
+            else
+            {
+                _windowsService.OpenAuthorization();
+                _windowsService.CloseWindow(this);
+            }
         }
     }
 }

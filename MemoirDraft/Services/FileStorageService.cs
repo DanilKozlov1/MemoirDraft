@@ -4,12 +4,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace MemoirDraft.Services
 {
     public class FileStorageService : IFileStorageService
     {
         private readonly ILogger<FileStorageService> _logger;
+
+        private JsonSerializerOptions _jsonOptions;
 
         private readonly string _baseDirectory;
         private readonly string _mode;
@@ -18,7 +21,13 @@ namespace MemoirDraft.Services
         public FileStorageService(ILogger<FileStorageService> logger, IConfiguration config)
         {
             _logger = logger;
-            
+
+            _jsonOptions = new JsonSerializerOptions 
+            { 
+                WriteIndented = true,
+                ReferenceHandler = ReferenceHandler.IgnoreCycles
+            };
+
             var notesPath = config["FileStorage:NotesPath"] ?? "Notes";
             _mode = config.GetValue<string>("Storage:Mode") ?? "DatabaseAndFile";
            
@@ -44,8 +53,8 @@ namespace MemoirDraft.Services
                 var basePath = Path.Combine(modeDir, fileName);
 
                 var jsonPath = basePath + ".json";
-                var jsonOptions = new JsonSerializerOptions { WriteIndented = true };
-                var json = JsonSerializer.Serialize(note, jsonOptions);
+                //var jsonOptions = new JsonSerializerOptions { WriteIndented = true };
+                var json = JsonSerializer.Serialize(note, _jsonOptions);
 
                 await File.WriteAllTextAsync(jsonPath, json);
                 _logger.LogInformation("Сохранён JSON для заметки {NoteId} в {JsonPath}", note.Id, jsonPath);
