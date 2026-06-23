@@ -11,8 +11,10 @@ namespace MemoirDraft.Services
     /// </summary>
     public class SessionService
     {
-        private readonly IServiceProvider _services;
         private readonly ILogger<SessionService> _logger;
+        private readonly IConfiguration _config;
+
+        private readonly IUserService _userService;
 
         /// <summary>
         /// Режим входа в приложение
@@ -53,13 +55,15 @@ namespace MemoirDraft.Services
         public event Action? CurrentUserChanged;
 
 
-        public SessionService(IServiceProvider services, ILogger<SessionService> logger)
+        public SessionService(ILogger<SessionService> logger, IConfiguration config,
+            IUserService userService)
         {
-            _services = services;
             _logger = logger;
+            _config = config;
 
-            var config = _services.GetRequiredService<IConfiguration>();
-            var appMode = config.GetValue<string>("Settings:AppMode") ?? "Auth";
+            _userService = userService;
+
+            var appMode = _config.GetValue<string>("Settings:AppMode") ?? "Auth";
             if (appMode == "NoAuth")
                 NoAuth = true;
             else
@@ -69,16 +73,13 @@ namespace MemoirDraft.Services
 
         public async Task LoadUser()
         {
-            IUserService userService = _services.GetRequiredService<IUserService>();
-
             try
             {
-                var user = await userService.GetByIdAsync(1);
+                var user = await _userService.GetByIdAsync(1);
 
                 if (user == null)
                 {
-                    _logger.
-                        LogError("Критическая ошибка: Пользователь с ID=1 не найден в БД!");
+                    _logger.LogError("Критическая ошибка: Пользователь с ID=1 не найден в БД!");
                     return;
                 }
 

@@ -4,7 +4,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace MemoirDraft.Services
 {
@@ -27,7 +26,7 @@ namespace MemoirDraft.Services
                 WriteIndented = true
             };
 
-            var notesPath = config["FileStorage:NotesPath"] ?? "Notes";
+            var notesPath = config["Storage:NotesPath"] ?? "Notes";
             _mode = config.GetValue<string>("Storage:Mode") ?? "DatabaseAndFile";
            
             _baseDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, notesPath);

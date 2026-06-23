@@ -79,7 +79,7 @@ namespace MemoirDraft.ViewModels
 
         private void Close()
         {
-            _logger.LogInformation("Запрос на закрытие окна для ViewModel: {ViewModelName}", this);
+            _logger.LogInformation("Запрос на закрытие окна для ViewModel: {ViewModelName}", GetType().Name);
             Application.Current.Shutdown();
         }
     }

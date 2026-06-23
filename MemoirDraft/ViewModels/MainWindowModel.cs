@@ -280,7 +280,7 @@ namespace MemoirDraft.ViewModels
 
             if (_sessionService.NoAuth)
             {
-                _logger.LogInformation("Запрос на закрытие окна для ViewModel: {ViewModelName}", this);
+                _logger.LogInformation("Запрос на закрытие окна для ViewModel: {ViewModelName}", GetType().Name);
                 Application.Current.Shutdown();
             }
             else
