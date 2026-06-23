@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MemoirDraft.Services.FileOnlyNoteMode
 {
-    public class FileOnlyNoteService : IFileOnlyNoteService
+    public class FileOnlyNoteService : INoteService
     {
         private readonly ILogger<FileOnlyNoteService> _logger;
         

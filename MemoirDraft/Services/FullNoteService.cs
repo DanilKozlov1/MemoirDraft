@@ -11,7 +11,7 @@ namespace MemoirDraft.Services
         private readonly ILogger<FullNoteService> _logger;
 
         private readonly INoteService _dbService;
-        private readonly IFileOnlyNoteService _fileService;
+        private readonly INoteService _fileService;
 
 
         public FullNoteService(ILogger<FullNoteService> logger,
@@ -33,7 +33,7 @@ namespace MemoirDraft.Services
 
         public Task<List<Note>?> GetFavoriteNotesAsync(int userId) => _dbService.GetFavoriteNotesAsync(userId);
 
-        public async Task CreateAsync(Note note)
+        public async Task CreateAsync(Note note, bool storageMode=false)
         {
             await _dbService.CreateAsync(note);
             _logger.LogInformation("Заметка {NoteId} сохранена в БД", note.Id);

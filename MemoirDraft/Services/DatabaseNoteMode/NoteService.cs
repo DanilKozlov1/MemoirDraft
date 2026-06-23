@@ -116,7 +116,7 @@ namespace MemoirDraft.Services.DatabaseNoteMode
             }
         }
 
-        public async Task CreateAsync(Note note)
+        public async Task CreateAsync(Note note, bool storageMode=false)
         {
             _logger.LogInformation("Создание новой заметки.");
 

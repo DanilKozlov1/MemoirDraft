@@ -61,7 +61,7 @@ namespace MemoirDraft
             {
                 case "FileOnly":
                     services.AddScoped<INoteTypeService, FileOnlyNoteTypeService>();
-                    services.AddScoped<IFileOnlyNoteService, FileOnlyNoteService>();
+                    services.AddScoped<INoteService, FileOnlyNoteService>();
 
                     break;
                 case "DatabaseOnly":
