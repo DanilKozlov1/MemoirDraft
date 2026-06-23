@@ -1,5 +1,4 @@
-﻿using MemoirDraft.DTO;
-using MemoirDraft.Services.Interfaces;
+﻿using MemoirDraft.Services.Interfaces;
 using MemoirDraft.ViewModels;
 using MemoirDraft.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -57,7 +56,7 @@ namespace MemoirDraft.Services
             win.Show();
             _openedWindows[type] = win;
 
-            if (typeof(TView) != typeof(AuthorizationView))
+            if (typeof(TView) == typeof(MainWindow) || typeof(TView) == typeof(AuthorizationView))
                 Application.Current.MainWindow = win;
         }
 
@@ -87,6 +86,7 @@ namespace MemoirDraft.Services
         /// <summary>
         /// Открытие модального окна с возможностью настройки
         /// </summary>
+        /// <param name="configure">Конфигурация открываемого окна</param>
         private bool? OpenModalWindow<TView>(Action<TView>? configure = null) where TView : Window
         {
             var type = typeof(TView);
@@ -107,12 +107,27 @@ namespace MemoirDraft.Services
             return result;
         }
 
+        /// <summary>
+        /// Открытие окна AuthorizationView
+        /// </summary>
         public void OpenAuthorization() => OpenWindow<AuthorizationView>();
 
+        /// <summary>
+        /// Открытие окна MainWindow
+        /// </summary>
         public void OpenMainWindow() => OpenWindow<MainWindow>();
 
+        /// <summary>
+        /// Открытие окна CreateNodeView
+        /// </summary>
+        /// <returns>Результат работы окна</returns>
         public bool? OpenCreateNote() => OpenModalWindow<CreateNoteView>();
 
+        /// <summary>
+        /// Открытие окна NoteView
+        /// </summary>
+        /// <param name="noteId">Id отображаемой заметки</param>
+        /// <returns>Результат работы окна</returns>
         public bool? OpenNoteView(int noteId)
         {
             return OpenModalWindow<NoteView>(win =>

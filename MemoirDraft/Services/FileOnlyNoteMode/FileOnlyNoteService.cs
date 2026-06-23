@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MemoirDraft.Services.FileOnlyNoteMode
 {
-    public class FileOnlyNoteService : INoteService
+    public class FileOnlyNoteService : IFileOnlyNoteService
     {
         private readonly ILogger<FileOnlyNoteService> _logger;
         
@@ -31,12 +31,16 @@ namespace MemoirDraft.Services.FileOnlyNoteMode
             note.NoteType = noteType;
         }
 
-        public async Task CreateAsync(Note note)
+        public async Task CreateAsync(Note note, bool storageMode = false)
         {
             var allNotes = await _fileStorage.LoadAllNotesAsync();
-            
-            int newId = allNotes.Any() ? allNotes.Max(n => n.Id) + 1 : 1;
-            note.Id = newId;
+
+            if (!storageMode)
+            {
+                int newId = 0;
+                newId = allNotes.Count != 0 ? allNotes.Max(n => n.Id) + 1 : 1;
+                note.Id = newId;
+            }
 
             await _fileStorage.SaveNoteFilesAsync(note);
             _logger.LogInformation("Заметка {NoteId} сохранена в файлы (режим FileOnly)", note.Id);

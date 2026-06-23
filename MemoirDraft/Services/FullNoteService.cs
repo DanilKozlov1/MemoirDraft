@@ -11,7 +11,7 @@ namespace MemoirDraft.Services
         private readonly ILogger<FullNoteService> _logger;
 
         private readonly INoteService _dbService;
-        private readonly INoteService _fileService;
+        private readonly IFileOnlyNoteService _fileService;
 
 
         public FullNoteService(ILogger<FullNoteService> logger,
@@ -40,7 +40,7 @@ namespace MemoirDraft.Services
 
             try
             {
-                await _fileService.CreateAsync(note);
+                await _fileService.CreateAsync(note, true);
                 _logger.LogInformation("Файлы для заметки {NoteId} сохранены", note.Id);
             }
             catch
@@ -71,8 +71,8 @@ namespace MemoirDraft.Services
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var dbResult = await _dbService.DeleteAsync(id);
             await _fileService.DeleteAsync(id);
+            var dbResult = await _dbService.DeleteAsync(id);
 
             return dbResult;
         }
