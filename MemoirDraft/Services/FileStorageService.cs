@@ -24,8 +24,7 @@ namespace MemoirDraft.Services
 
             _jsonOptions = new JsonSerializerOptions 
             { 
-                WriteIndented = true,
-                ReferenceHandler = ReferenceHandler.IgnoreCycles
+                WriteIndented = true
             };
 
             var notesPath = config["FileStorage:NotesPath"] ?? "Notes";

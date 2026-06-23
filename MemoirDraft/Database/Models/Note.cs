@@ -1,5 +1,6 @@
 ﻿using MemoirDraft.Database.DTO;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace MemoirDraft.Database.Models
 {
@@ -16,8 +17,10 @@ namespace MemoirDraft.Database.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+        [JsonIgnore]
         [ForeignKey(nameof(UserId))]
         public User? User { get; set; }
+        [JsonIgnore]
         [ForeignKey(nameof(NoteTypeId))]
         public NoteType? NoteType { get; set; }
     }
