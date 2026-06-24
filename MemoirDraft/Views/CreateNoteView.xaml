@@ -1,7 +1,7 @@
 ﻿<Window x:Class="MemoirDraft.Views.CreateNoteView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Создание заметки" 
+        Title="CreateNote" 
         Height="600" Width="600"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource BackgroundBrush}"

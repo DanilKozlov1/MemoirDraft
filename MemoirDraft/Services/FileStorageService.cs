@@ -17,9 +17,10 @@ namespace MemoirDraft.Services
         private readonly string _mode;
 
 
-        public FileStorageService(ILogger<FileStorageService> logger, IConfiguration config)
+        public FileStorageService(ILogger<FileStorageService> logger, IConfiguration config, string mode)
         {
             _logger = logger;
+            _mode = mode;
 
             _jsonOptions = new JsonSerializerOptions 
             { 
@@ -27,7 +28,6 @@ namespace MemoirDraft.Services
             };
 
             var notesPath = config["Storage:NotesPath"] ?? "Notes";
-            _mode = config.GetValue<string>("Storage:Mode") ?? "DatabaseAndFile";
            
             _baseDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, notesPath);
             var modeDir = Path.Combine(_baseDirectory, _mode);

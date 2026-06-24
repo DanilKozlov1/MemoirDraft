@@ -199,11 +199,11 @@ namespace MemoirDraft.ViewModels
             if (_sessionService.NoAuth)
                 await _sessionService.LoadUser();
 
-            if (_sessionService.CurrentUser == null)
-            {
-                ErrorMessage = "Не удалось загрузить пользователя. Проверьте подключение к БД.";
-                return;
-            }
+            //if (_sessionService.CurrentUser == null)
+            //{
+            //    ErrorMessage = "Не удалось загрузить пользователя. Проверьте подключение к БД.";
+            //    return;
+            //}
 
             await LoadFiltersAsync();
             await LoadNotesAsync();

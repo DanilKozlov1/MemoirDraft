@@ -43,11 +43,16 @@ namespace MemoirDraft
         /// Добавление базовых сервисов в контейнер
         /// </summary>
         /// <param name="services">Контейнер</param>
-        private void AddBaseServices(ServiceCollection services)
+        private void AddBaseServices(ServiceCollection services, string storageMode)
         {
             services.AddSingleton<SessionService>();
             services.AddSingleton<WindowsService>();
-            services.AddSingleton<IFileStorageService, FileStorageService>();
+            services.AddSingleton<IFileStorageService>(provider =>
+            {
+                var logger = provider.GetRequiredService<ILogger<FileStorageService>>();
+                var config = provider.GetRequiredService<IConfiguration>();
+                return new FileStorageService(logger, config, storageMode);
+            });
             services.AddScoped<IUserService, UserService>();
         }
 
@@ -124,30 +129,47 @@ namespace MemoirDraft
         {
             base.OnStartup(e);
 
-            // Конфигурация
             var config = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
                 .Build();
 
+            var storageMode = config.GetValue<string>("Storage:Mode") ?? "DatabaseAndFile";
+
+            bool dbAvailable = false;
+            try
+            {
+                var connectionString = config.GetConnectionString("Default");
+                var optionsBuilder = new DbContextOptionsBuilder<AppDBContext>();
+                optionsBuilder.UseNpgsql(connectionString);
+                using var testContext = new AppDBContext(optionsBuilder.Options);
+                dbAvailable = testContext.Database.CanConnect();
+            }
+            catch
+            {
+                dbAvailable = false;
+            }
+
+            if (!dbAvailable && storageMode != "FileOnly")
+            {
+                Log.ForContext("SourceContext", "App")
+                    .Warning("База данных недоступна. Автоматическое переключение на режим FileOnly.");
+                storageMode = "FileOnly";
+            }
+
             var services = new ServiceCollection();
             services.AddSingleton<IConfiguration>(config);
 
-            // Регистарция Serilog
             SerilogConfigurator.ConfigureLogging(services, config);
 
-            // База данных
             services.AddDbContext<AppDBContext>(options =>
                 options.UseNpgsql(config.GetConnectionString("Default")));
 
             AddRepositories(services);
+            AddBaseServices(services, storageMode);
 
-            AddBaseServices(services);
-
-            var storageMode = config.GetValue<string>("Storage:Mode") ?? "DatabaseAndFile";
             SetStorageMode(services, storageMode);
 
             AddViewModels(services);
-
             AddViews(services);
 
             Services = services.BuildServiceProvider();
@@ -157,23 +179,29 @@ namespace MemoirDraft
                 using var scope = Services.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<AppDBContext>();
 
-                if (db.Database.CanConnect())
+                if (storageMode != "FileOnly")
                 {
-                    Log.ForContext("SourceContext", "App")
-                        .Information("Успешное подключение к СУБД PostgreSQL.");
+                    if (db.Database.CanConnect())
+                    {
+                        Log.ForContext("SourceContext", "App")
+                            .Information("Успешное подключение к СУБД PostgreSQL.");
+                        db.Database.Migrate();
+                    }
+                    else
+                    {
+                        Log.ForContext("SourceContext", "App")
+                            .Fatal("КРИТИЧЕСКАЯ ОШИБКА: База данных PostgreSQL недоступна.");
+                        MessageBox.Show("Ошибка запуска. Проверьте логи.", "Ошибка",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        Shutdown();
+                        return;
+                    }
                 }
                 else
                 {
                     Log.ForContext("SourceContext", "App")
-                        .Fatal("КРИТИЧЕСКАЯ ОШИБКА: База данных PostgreSQL недоступна или строка подключения неверна.");
-                    MessageBox.Show("Ошибка запуска. Проверьте логи.", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-
-                    Shutdown();
-                    return;
+                        .Information("Запуск в режиме FileOnly (БД не используется).");
                 }
-
-                db.Database.Migrate();
 
                 var startupScope = Services.CreateScope();
 
@@ -181,8 +209,7 @@ namespace MemoirDraft
                 if (config.GetValue<string>("Settings:AppMode") == "Auth")
                     win = startupScope.ServiceProvider.GetRequiredService<AuthorizationView>();
 
-                Log.ForContext("SourceContext", "App")
-                    .Information("Приложение запущено.");
+                Log.ForContext("SourceContext", "App").Information("Приложение запущено.");
                 win.Show();
             }
             catch (Exception ex)
@@ -191,6 +218,7 @@ namespace MemoirDraft
                     .Fatal("Критическая ошибка приложения: {exMessage}", ex);
                 MessageBox.Show("Ошибка запуска. Проверьте логи.", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
+
                 Shutdown();
             }
         }

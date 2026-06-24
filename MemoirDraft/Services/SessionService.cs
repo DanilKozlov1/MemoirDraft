@@ -73,21 +73,50 @@ namespace MemoirDraft.Services
 
         public async Task LoadUser()
         {
-            try
+            if (NoAuth)
             {
-                var user = await _userService.GetByIdAsync(1);
-
-                if (user == null)
+                try
                 {
-                    _logger.LogError("Критическая ошибка: Пользователь с ID=1 не найден в БД!");
-                    return;
+                    var user = await _userService.GetByIdAsync(1);
+                    if (user != null)
+                    {
+                        CurrentUser = user;
+                        _logger.LogInformation("Загружен пользователь {Username} из БД (режим NoAuth)", user.Username);
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, 
+                        "Не удалось загрузить пользователя из БД (режим NoAuth). Будет создан виртуальный пользователь.");
                 }
 
-                CurrentUser = user;
+                CurrentUser = new User
+                {
+                    Id = 1,
+                    Username = "Nothing",
+                    Password = "123"
+                };
+                _logger.LogInformation("Создан виртуальный пользователь для режима NoAuth (БД недоступна)");
             }
-            catch (Exception ex)
+            else
             {
-                _logger.LogError("Ошибка подключения к базе данных при загрузке пользователя: {ex}", ex);
+                try
+                {
+                    var user = await _userService.GetByIdAsync(1);
+                    if (user == null)
+                    {
+                        _logger.LogError("Критическая ошибка: Пользователь с ID=1 не найден в БД!");
+                        throw new InvalidOperationException("Пользователь с ID=1 не найден");
+                    }
+
+                    CurrentUser = user;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Ошибка подключения к базе данных при загрузке пользователя.");
+                    throw;
+                }
             }
         }
     }
