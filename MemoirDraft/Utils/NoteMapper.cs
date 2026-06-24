@@ -12,6 +12,7 @@ namespace MemoirDraft.Utils
                 Id = note.Id,
                 Title = note.Title,
                 NoteTypeName = note.NoteType?.Name ?? "Без типа",
+                IsFavorite = note.IsFavorite
             };
         }
 

@@ -117,6 +117,24 @@
         </Style.Triggers>
     </Style>
 
+    <Style TargetType="Button" x:Key="FavoriteButton">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="Foreground" Value="{StaticResource SilverBrush}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Content" Value="☆"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsFavorite}" Value="True">
+                <Setter Property="Foreground" Value="{StaticResource GoldBrush}"/>
+                <Setter Property="Content" Value="★"/>
+            </DataTrigger>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="{StaticResource GoldBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
     <Style TargetType="ScrollBar">
         <Setter Property="Background" Value="#2D2D2D"/>
         <Setter Property="Width" Value="8"/>

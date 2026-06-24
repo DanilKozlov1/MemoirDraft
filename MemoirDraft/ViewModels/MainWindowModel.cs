@@ -69,6 +69,10 @@ namespace MemoirDraft.ViewModels
         /// </summary>
         public ICommand DeleteNoteCommand { get; }
         /// <summary>
+        /// Команда добавления заметки в "Избранные"
+        /// </summary>
+        public ICommand ToggleFavoriteCommand { get; }
+        /// <summary>
         /// Команда фильтрации списка заметок
         /// </summary>
         public ICommand FilterCommand { get; }
@@ -110,6 +114,10 @@ namespace MemoirDraft.ViewModels
             );
             DeleteNoteCommand = new RelayCommandAsync(
                 execute: DeleteNoteAsync,
+                canExecute: _ => !IsBusy
+            );
+            ToggleFavoriteCommand = new RelayCommandAsync(
+                execute: ToggleFavoriteAsync,
                 canExecute: _ => !IsBusy
             );
 
@@ -268,6 +276,31 @@ namespace MemoirDraft.ViewModels
             {
                 _logger.LogError(ex, "Ошибка при удалении заметки {NoteId}", noteDto.Id);
                 ErrorMessage = "Ошибка при удалении заметки";
+            }
+        }
+
+        /// <summary>
+        /// Добавление заметки в избранное
+        /// </summary>
+        /// <param name="parameter">NoteDto</param>
+        private async Task ToggleFavoriteAsync(object parameter)
+        {
+            if (parameter is NoteDto noteDto)
+            {
+                var note = await _noteService.GetByIdAsync(noteDto.Id);
+                if (note == null) return;
+
+                note.IsFavorite = !note.IsFavorite;
+                await _noteService.UpdateAsync(note);
+
+                if (note.IsFavorite)
+                    _logger.LogInformation("Заметка по id={noteId} добавлена в избранное.", note.Id);
+                else
+                    _logger.LogInformation("Заметка по id={noteId} убрана из избранного.", note.Id);
+
+                var target = Notes.FirstOrDefault(n => n.Id == noteDto.Id);
+                if (target != null)
+                    target.IsFavorite = note.IsFavorite;
             }
         }
 
