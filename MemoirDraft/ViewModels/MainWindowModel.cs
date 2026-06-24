@@ -325,10 +325,12 @@ namespace MemoirDraft.ViewModels
             {
                 var added = await _syncService.SyncFromFileOnlyToDatabaseAsync(userId);
 
-                await LoadNotesAsync();
-                
-                MessageBox.Show($"Синхронизировано {added} заметок", "Успех",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                if (added > 0)
+                {
+                    await LoadNotesAsync();
+                    MessageBox.Show($"Синхронизировано {added} заметок", "Успех",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
             }
             catch (Exception ex)
             {
