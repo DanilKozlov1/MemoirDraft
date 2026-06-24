@@ -62,19 +62,39 @@
 
             <!-- Левая панель -->
             <Border Grid.Column="0" Background="{StaticResource PanelBrush}" 
-                    BorderBrush="{StaticResource GoldBrush}" BorderThickness="0,0,1,0">
-                <StackPanel Margin="10">
-                    <TextBlock Text="МЕНЮ" 
-                               Foreground="{StaticResource GoldBrush}" 
-                               FontWeight="Bold" FontSize="16"
-                               Margin="0,0,0,20"/>
-                    <Button Content="➕ Создать заметку" 
+        BorderBrush="{StaticResource GoldBrush}" BorderThickness="0,0,1,0">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Верхняя часть -->
+                    <StackPanel Grid.Row="0">
+                        <TextBlock Text="МЕНЮ" 
+                           Foreground="{StaticResource GoldBrush}" 
+                           FontWeight="Bold" FontSize="16"
+                           Margin="0,0,0,20"/>
+                        <Button Content="➕ Создать заметку" 
                             Command="{Binding CreateNoteCommand}"
                             Style="{StaticResource SecondaryButton}"
                             HorizontalAlignment="Stretch"
                             Margin="0,0,0,15"/>
-                    <!-- Здесь позже появятся другие кнопки -->
-                </StackPanel>
+                        <!-- другие кнопки -->
+                    </StackPanel>
+
+                    <!-- Пустая средняя строка (заполняет пространство) -->
+                    <Grid Grid.Row="1"/>
+
+                    <!-- Нижняя кнопка -->
+                    <Button Grid.Row="2" 
+                        Content="🔄 Синхронизировать" 
+                        Command="{Binding SyncCommand}"
+                        Style="{StaticResource SecondaryButton}"
+                        HorizontalAlignment="Stretch"
+                        Margin="0,10,0,0"/>
+                </Grid>
             </Border>
 
             <!-- Правая часть: фильтры + список -->

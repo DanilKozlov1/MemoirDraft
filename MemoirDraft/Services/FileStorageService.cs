@@ -41,6 +41,58 @@ namespace MemoirDraft.Services
             return Path.Combine(_baseDirectory, _mode);
         }
 
+        public async Task<List<Note>> LoadAllNotesAsync()
+        {
+            var modeDir = GetModeDirectory();
+            var notes = new List<Note>();
+            if (!Directory.Exists(modeDir))
+                return notes;
+
+            var files = Directory.GetFiles(modeDir, "*.json");
+            foreach (var file in files)
+            {
+                try
+                {
+                    var json = await File.ReadAllTextAsync(file);
+                    var note = JsonSerializer.Deserialize<Note>(json);
+                    if (note != null)
+                        notes.Add(note);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Не удалось прочитать файл {File}", file);
+                }
+            }
+            return notes;
+        }
+
+        public async Task<List<Note>> LoadAllNotesFromModeAsync(string mode)
+        {
+            var dir = Path.Combine(_baseDirectory, mode);
+
+            var notes = new List<Note>();
+            if (!Directory.Exists(dir)) 
+                return notes;
+            
+            var files = Directory.GetFiles(dir, "*.json");
+            foreach (var file in files)
+            {
+                try
+                {
+                    var json = await File.ReadAllTextAsync(file);
+                    var note = JsonSerializer.Deserialize<Note>(json);
+
+                    if (note != null) 
+                        notes.Add(note);
+                }
+                catch (Exception ex) 
+                { 
+                    _logger.LogWarning(ex, "Не удалось прочитать {File}", file); 
+                }
+            }
+            return notes;
+        }
+
         public async Task SaveNoteFilesAsync(Note note)
         {
             try
@@ -51,7 +103,6 @@ namespace MemoirDraft.Services
                 var basePath = Path.Combine(modeDir, fileName);
 
                 var jsonPath = basePath + ".json";
-                //var jsonOptions = new JsonSerializerOptions { WriteIndented = true };
                 var json = JsonSerializer.Serialize(note, _jsonOptions);
 
                 await File.WriteAllTextAsync(jsonPath, json);
@@ -124,29 +175,24 @@ namespace MemoirDraft.Services
             }
         }
 
-        public async Task<List<Note>> LoadAllNotesAsync()
+        public async Task MoveNoteFilesAsync(int oldNoteId, int newNoteId, string sourceMode, string targetMode)
         {
-            var modeDir = GetModeDirectory();
-            var notes = new List<Note>();
-            if (!Directory.Exists(modeDir))
-                return notes;
+            var sourceDir = Path.Combine(_baseDirectory, sourceMode);
+            var targetDir = Path.Combine(_baseDirectory, targetMode);
 
-            var files = Directory.GetFiles(modeDir, "*.json");
+            Directory.CreateDirectory(targetDir);
+            
+            var files = Directory.GetFiles(sourceDir, $"{oldNoteId}_*");
             foreach (var file in files)
             {
-                try
-                {
-                    var json = await File.ReadAllTextAsync(file);
-                    var note = JsonSerializer.Deserialize<Note>(json);
-                    if (note != null)
-                        notes.Add(note);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Не удалось прочитать файл {File}", file);
-                }
+                var fileName = Path.GetFileName(file);
+                var newFileName = fileName.Replace($"{oldNoteId}_", $"{newNoteId}_");
+
+                var newPath = Path.Combine(targetDir, newFileName);
+                
+                File.Move(file, newPath, true);
+                _logger.LogInformation("Файл {File} перемещён в {NewPath}", file, newPath);
             }
-            return notes;
         }
     }
 }
