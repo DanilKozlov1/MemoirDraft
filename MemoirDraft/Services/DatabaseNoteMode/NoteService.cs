@@ -3,16 +3,18 @@ using MemoirDraft.Repositories.Interfaces;
 using MemoirDraft.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 
-namespace MemoirDraft.Services
+namespace MemoirDraft.Services.DatabaseNoteMode
 {
     public class NoteService : INoteService
     {
         private readonly ILogger<NoteService> _logger;
+
         private readonly INoteRepository _noteRepository;
         private readonly IUserRepository _userRepository;
 
 
-        public NoteService(ILogger<NoteService> logger, INoteRepository noteRepository, IUserRepository userRepository)
+        public NoteService(ILogger<NoteService> logger, 
+            INoteRepository noteRepository, IUserRepository userRepository)
         {
             _logger = logger;
             _noteRepository = noteRepository;
@@ -43,7 +45,7 @@ namespace MemoirDraft.Services
             _logger.LogInformation("Запрос на получение всех заметок пользователя({userId}).", userId);
             try
             {
-                if (_userRepository.GetByIdAsync(userId) == null)
+                if (await _userRepository.GetByIdAsync(userId) == null)
                 {
                     _logger.LogWarning("Пользователя по Id={userId} не найдено или не существует.", userId);
                     return null;
@@ -68,7 +70,7 @@ namespace MemoirDraft.Services
                 userId, noteTypeId);
             try
             {
-                if (_userRepository.GetByIdAsync(userId) == null)
+                if (await _userRepository.GetByIdAsync(userId) == null)
                 {
                     _logger.LogWarning("Пользователя по Id={userId} не найдено или не существует.", userId);
                     return null;
@@ -114,7 +116,7 @@ namespace MemoirDraft.Services
             }
         }
 
-        public async Task CreateAsync(Note note)
+        public async Task CreateAsync(Note note, bool storageMode=false)
         {
             _logger.LogInformation("Создание новой заметки.");
 

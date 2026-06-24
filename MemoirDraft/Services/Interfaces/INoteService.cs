@@ -8,7 +8,7 @@ namespace MemoirDraft.Services.Interfaces
         Task<List<Note>?> GetAllByUserAsync(int userId);
         Task<List<Note>?> GetAllByNoteTypeAsync(int userId, int noteTypeId);
         Task<List<Note>?> GetFavoriteNotesAsync(int userId);
-        Task CreateAsync(Note note);
+        Task CreateAsync(Note note, bool storageMode = false);
         Task<bool> UpdateAsync(Note note);
         Task<bool> DeleteAsync(int id);
     }

@@ -1,4 +1,6 @@
-﻿namespace MemoirDraft.Database.Models
+﻿using System.Text.Json.Serialization;
+
+namespace MemoirDraft.Database.Models
 {
     public class User
     {
@@ -6,6 +8,7 @@
         public required string Username { get; set; }
         public required string Password { get; set; }
 
+        [JsonIgnore]
         public ICollection<Note> Notes { get; set; } = new List<Note>();
     }
 }

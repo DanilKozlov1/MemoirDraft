@@ -1,5 +1,8 @@
-﻿using MemoirDraft.Database.Models;
+﻿using MemoirDraft.Database.DTO;
+using MemoirDraft.Database.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System.Text.Json;
 
 namespace MemoirDraft.Database
 {
@@ -18,9 +21,17 @@ namespace MemoirDraft.Database
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Note>()
+                .Property(n => n.Id)
+                .UseIdentityColumn();
+
+            modelBuilder.Entity<Note>()
                 .Property(n => n.TodoItems)
                 .HasColumnType("jsonb")
-                .HasDefaultValueSql("'[]'::jsonb");
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, new JsonSerializerOptions()),
+                    v => JsonSerializer.Deserialize<List<TodoItem>>(v, new JsonSerializerOptions()
+                )
+            );
 
             modelBuilder.Entity<Note>()
                 .HasIndex(n => new { n.UserId, n.CreatedAt });
