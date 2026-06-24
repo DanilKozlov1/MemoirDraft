@@ -1,9 +1,8 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using MemoirDraft.DTO.Abstractions;
 
 namespace MemoirDraft.DTO
 {
-    public class FilterDto : INotifyPropertyChanged
+    public class FilterDto : ObservableDto
     {
         private int _id;
         private string _name = string.Empty;
@@ -13,59 +12,25 @@ namespace MemoirDraft.DTO
         public int Id
         {
             get => _id;
-            set 
-            { 
-                if (_id != value) 
-                { 
-                    _id = value; 
-                    OnPropertyChanged(); 
-                } 
-            }
+            set => SetProperty(ref _id, value);
         }
 
         public string Name
         {
             get => _name;
-            set 
-            { 
-                if (_name != value) 
-                { 
-                    _name = value; 
-                    OnPropertyChanged(); 
-                } 
-            }
+            set => SetProperty(ref _name, value);
         }
 
         public bool IsActive
         {
             get => _isActive;
-            set 
-            { 
-                if (_isActive != value) 
-                { 
-                    _isActive = value; 
-                    OnPropertyChanged(); 
-                } 
-            }
+            set => SetProperty(ref _isActive, value);
         }
 
         public bool IsSpecial
         {
             get => _isSpecial;
-            set 
-            { 
-                if (_isSpecial != value) 
-                { 
-                    _isSpecial = value; 
-                    OnPropertyChanged(); 
-                } 
-            }
+            set => SetProperty(ref _isSpecial, value);
         }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

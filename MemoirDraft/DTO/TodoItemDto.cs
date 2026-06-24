@@ -1,9 +1,8 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using MemoirDraft.DTO.Abstractions;
 
 namespace MemoirDraft.DTO
 {
-    public class TodoItemDto : INotifyPropertyChanged
+    public class TodoItemDto : ObservableDto
     {
         private int _id;
         private string _text = string.Empty;
@@ -12,46 +11,19 @@ namespace MemoirDraft.DTO
         public int Id
         {
             get => _id;
-            set 
-            {
-                if (_id != value) 
-                { 
-                    _id = value; 
-                    OnPropertyChanged(); 
-                } 
-            }
+            set => SetProperty(ref _id, value);
         }
 
         public string Text
         {
             get => _text;
-            set 
-            { 
-                if (_text != value) 
-                { 
-                    _text = value; 
-                    OnPropertyChanged(); 
-                } 
-            }
+            set => SetProperty(ref _text, value);
         }
 
         public bool IsDone
         {
             get => _isDone;
-            set 
-            { 
-                if (_isDone != value) 
-                { 
-                    _isDone = value; 
-                    OnPropertyChanged(); 
-                } 
-            }
+            set => SetProperty(ref _isDone, value);
         }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

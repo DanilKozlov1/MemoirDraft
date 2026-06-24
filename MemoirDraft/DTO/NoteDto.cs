@@ -1,9 +1,8 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using MemoirDraft.DTO.Abstractions;
 
 namespace MemoirDraft.DTO
 {
-    public class NoteDto : INotifyPropertyChanged
+    public class NoteDto : ObservableDto
     {
         private int _id;
         public string _title = string.Empty;
@@ -13,59 +12,25 @@ namespace MemoirDraft.DTO
         public int Id
         {
             get => _id;
-            set
-            {
-                if (_id != value)
-                {
-                    _id = value;
-                    OnPropertyChanged();
-                }
-            }
+            set => SetProperty(ref _id, value);
         }
 
         public string Title
         {
             get => _title;
-            set
-            {
-                if (_title != value)
-                {
-                    _title = value;
-                    OnPropertyChanged();
-                }
-            }
+            set => SetProperty(ref _title, value);
         }
 
         public string NoteTypeName
         {
             get => _noteTypeName;
-            set
-            {
-                if (_noteTypeName != value)
-                {
-                    _noteTypeName = value;
-                    OnPropertyChanged();
-                }
-            }
+            set => SetProperty(ref _noteTypeName, value);
         }
 
         public bool IsFavorite
         {
             get => _isFavorite;
-            set
-            {
-                if (_isFavorite != value)
-                {
-                    _isFavorite = value;
-                    OnPropertyChanged();
-                }
-            }
+            set => SetProperty(ref _isFavorite, value);
         }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

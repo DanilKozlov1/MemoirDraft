@@ -1,9 +1,8 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using MemoirDraft.DTO.Abstractions;
 
 namespace MemoirDraft.DTO
 {
-    public class CreateNotePageDto : INotifyPropertyChanged
+    public class CreateNotePageDto : ObservableDto
     {
         private string _name = string.Empty;
         private bool _isActive;
@@ -12,25 +11,19 @@ namespace MemoirDraft.DTO
         public string Name
         {
             get => _name;
-            set { if (_name != value) { _name = value; OnPropertyChanged(); } }
+            set => SetProperty(ref _name, value);
         }
 
         public bool IsActive
         {
             get => _isActive;
-            set { if (_isActive != value) { _isActive = value; OnPropertyChanged(); } }
+            set => SetProperty(ref _isActive, value);
         }
 
         public object? Content
         {
             get => _content;
-            set { if (_content != value) { _content = value; OnPropertyChanged(); } }
+            set => SetProperty(ref _content, value);
         }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
