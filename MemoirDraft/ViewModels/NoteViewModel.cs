@@ -1,6 +1,5 @@
 ﻿using MemoirDraft.Commands;
 using MemoirDraft.Database.DTO;
-using MemoirDraft.Database.Models;
 using MemoirDraft.DTO;
 using MemoirDraft.Services;
 using MemoirDraft.Services.Interfaces;
@@ -42,6 +41,10 @@ namespace MemoirDraft.ViewModels
         /// Список пунктов для заметки типа todo
         /// </summary>
         private ObservableCollection<TodoItemDto> _todoItems;
+        /// <summary>
+        /// Новый пункт для заметки типа todo
+        /// </summary>
+        private string _newTodoText = string.Empty;
 
         /// <summary>
         /// Id типа текущей заметки
@@ -83,15 +86,41 @@ namespace MemoirDraft.ViewModels
             get => _todoItems;
             set => SetProperty(ref _todoItems, value);
         }
+        /// <summary>
+        /// Новый пункт для заметки типа todo
+        /// </summary>
+        public string NewTodoText
+        {
+            get => _newTodoText;
+            set => SetProperty(ref _newTodoText, value);
+        }
 
         /// <summary>
         /// Команда загрузки данных заметки
         /// </summary>
         public ICommand LoadCommand { get; }
+        
+        /// <summary>
+        /// Команда добавления нового пункта списка для todo-заметки
+        /// </summary>
+        public ICommand AddTodoCommand { get; }
+        /// <summary>
+        /// Команда перемещения пункта списка todo-заметки вверх
+        /// </summary>
+        public ICommand MoveTodoUpCommand { get; }
+        /// <summary>
+        /// Команда перемещения пункта списка todo-заметки вниз
+        /// </summary>
+        public ICommand MoveTodoDownCommand { get; }
+        /// <summary>
+        /// Команда удаления пункта списка для todo-заметки
+        /// </summary>
+        public ICommand RemoveTodoCommand { get; }
         /// <summary>
         /// Команда сохранения изменений
         /// </summary>
         public ICommand SaveCommand { get; }
+        
         /// <summary>
         /// Команда закрытия окна
         /// </summary>
@@ -113,6 +142,20 @@ namespace MemoirDraft.ViewModels
                 execute: () => TryRunTaskAsync(LoadNoteAsync, "Ошибка загрузки заметки"),
                 canExecute: () => !IsBusy
             );
+
+            AddTodoCommand = new RelayCommand(
+                execute: AddTodo,
+                canExecute: () => !string.IsNullOrWhiteSpace(NewTodoText)
+            );
+            MoveTodoUpCommand = new RelayCommand(
+                execute:  MoveTodoUp,
+                canExecute: CanMoveUp
+            );
+            MoveTodoDownCommand = new RelayCommand(
+                execute: MoveTodoDown,
+                canExecute: CanMoveDown
+            );
+            RemoveTodoCommand = new RelayCommand(RemoveTodo);
 
             SaveCommand = new RelayCommandAsync(
                 execute: () => TryRunTaskAsync(SaveAsync, "Ошибка сохранения"),
@@ -156,6 +199,103 @@ namespace MemoirDraft.ViewModels
                 }
             }
         }
+
+        #region -- Методы для Todo-заметки --
+        /// <summary>
+        /// Добавление нового пункта для todo-заметки
+        /// </summary>
+        private void AddTodo()
+        {
+            if (string.IsNullOrWhiteSpace(NewTodoText)) 
+                return;
+
+            TodoItems.Add(new TodoItemDto
+            {
+                Id = TodoItems.Count > 0 ? TodoItems.Max(t => t.Id) + 1 : 1,
+                Text = NewTodoText,
+                IsDone = false
+            });
+            
+            NewTodoText = string.Empty;
+        }
+
+        /// <summary>
+        /// Проверка возможности переместить пункт списка todo вверх
+        /// </summary>
+        /// <param name="parameter">TodoItemDto</param>
+        /// <returns>true - если перемещение возможно, false - если нет</returns>
+        private bool CanMoveUp(object parameter)
+        {
+            if (parameter is TodoItemDto item)
+            {
+                int index = TodoItems.IndexOf(item);
+                return index > 0;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Проверка возможности переместить пункт списка todo вниз
+        /// </summary>
+        /// <param name="parameter">TodoItemDto</param>
+        /// <returns>true - если перемещение возможно, false - если нет</returns>
+        private bool CanMoveDown(object parameter)
+        {
+            if (parameter is TodoItemDto item)
+            {
+                int index = TodoItems.IndexOf(item);
+                return index >= 0 && index < TodoItems.Count - 1;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Перемещение пункта списка todo вверх
+        /// </summary>
+        /// <param name="parameter">TodoItemDto</param>
+        private void MoveTodoUp(object parameter)
+        {
+            if (parameter is TodoItemDto item)
+            {
+                int index = TodoItems.IndexOf(item);
+                if (index > 0)
+                {
+                    TodoItems.Move(index, index - 1);
+
+                    (MoveTodoUpCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                    (MoveTodoDownCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Перемещение пункта списка todo вниз
+        /// </summary>
+        /// <param name="parameter">TodoItemDto</param>
+        private void MoveTodoDown(object parameter)
+        {
+            if (parameter is TodoItemDto item)
+            {
+                int index = TodoItems.IndexOf(item);
+                if (index >= 0 && index < TodoItems.Count - 1)
+                {
+                    TodoItems.Move(index, index + 1);
+
+                    (MoveTodoUpCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                    (MoveTodoDownCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Удаление пункта для todo-заметки
+        /// </summary>
+        private void RemoveTodo(object parameter)
+        {
+            if (parameter is TodoItemDto item)
+                TodoItems.Remove(item);
+        }
+        #endregion
 
         /// <summary>
         /// Сохранение изменений заметки

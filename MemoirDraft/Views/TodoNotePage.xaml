@@ -41,10 +41,31 @@
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <CheckBox Content="{Binding Text}" 
-                              IsChecked="{Binding IsDone}" 
-                              Foreground="{StaticResource TextPrimaryBrush}"
-                              Margin="5" FontSize="14"/>
+                    <Grid Margin="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox Grid.Column="0" 
+                            Content="{Binding Text}" 
+                            IsChecked="{Binding IsDone}" 
+                            Foreground="{StaticResource TextPrimaryBrush}"
+                            Margin="5" FontSize="14"/>
+                        <Button Grid.Column="1" 
+                            Content="✕" 
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Foreground="{StaticResource GoldBrush}"
+                            FontSize="12"
+                            Cursor="Hand"
+                            Command="{Binding DataContext.RemoveTodoCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding}"
+                            Width="22" Height="22"
+                            Margin="5,0,0,0"
+                            Padding="0"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Center"/>
+                    </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

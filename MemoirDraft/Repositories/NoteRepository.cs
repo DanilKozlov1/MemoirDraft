@@ -21,6 +21,7 @@ namespace MemoirDraft.Repositories
         public async Task<List<Note>> GetAllByUserAsync(int userId)
         {
             return await _context.Notes
+                .AsNoTracking()
                 .Include(n => n.User)
                 .Include(n => n.NoteType)
                 .Where(n => n.UserId == userId)
@@ -30,6 +31,7 @@ namespace MemoirDraft.Repositories
         public async Task<List<Note>> GetAllByNoteTypeAsync(int userId, int noteTypeId)
         {
             return await _context.Notes
+                .AsNoTracking()
                 .Include(n => n.User)
                 .Include(n => n.NoteType)
                 .Where(n => n.UserId == userId && n.NoteTypeId == noteTypeId)
@@ -39,6 +41,7 @@ namespace MemoirDraft.Repositories
         public async Task<List<Note>> GetFavoriteNotesAsync(int userId)
         {
             return await _context.Notes
+                .AsNoTracking()
                 .Include(n => n.User)
                 .Include(n => n.NoteType)
                 .Where(n => n.UserId == userId && n.IsFavorite)

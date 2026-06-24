@@ -1,6 +1,7 @@
 ﻿using MemoirDraft.Commands;
 using MemoirDraft.Database.DTO;
 using MemoirDraft.Database.Models;
+using MemoirDraft.DTO;
 using MemoirDraft.Services;
 using MemoirDraft.Services.Interfaces;
 using MemoirDraft.ViewModels.Abstractions;
@@ -63,6 +64,10 @@ namespace MemoirDraft.ViewModels
         /// </summary>
         public ICommand AddTodoCommand { get; }
         /// <summary>
+        /// Команда удаления пункта списка для todo-заметки
+        /// </summary>
+        public ICommand RemoveTodoCommand { get; }
+        /// <summary>
         /// Команда сохранения заметки
         /// </summary>
         public ICommand SaveCommand { get; }
@@ -88,6 +93,8 @@ namespace MemoirDraft.ViewModels
             _todoItems = new ObservableCollection<TodoItem>();
 
             AddTodoCommand = new RelayCommand(AddTodo);
+            RemoveTodoCommand = new RelayCommand(RemoveTodo);
+
             SaveCommand = new RelayCommandAsync(
                 execute: () => TryRunTaskAsync(Save, "Ошибка сохранения"),
                 canExecute: () => !IsBusy
@@ -106,6 +113,15 @@ namespace MemoirDraft.ViewModels
                 TodoItems.Add(new TodoItem { Id = TodoItems.Count + 1, Text = NewTodoText, IsDone = false });
                 NewTodoText = string.Empty;
             }
+        }
+
+        /// <summary>
+        /// Удаление пункта для todo-заметки
+        /// </summary>
+        private void RemoveTodo(object parameter)
+        {
+            if (parameter is TodoItem item)
+                TodoItems.Remove(item);
         }
 
         /// <summary>
