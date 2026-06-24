@@ -22,6 +22,7 @@ namespace MemoirDraft.ViewModels
 
         private readonly SessionService _sessionService;
         private readonly WindowsService _windowsService;
+        private readonly SyncService _syncService;
 
         private readonly INoteService _noteService;
         private readonly INoteTypeService _noteTypeService;
@@ -81,13 +82,17 @@ namespace MemoirDraft.ViewModels
         /// </summary>
         public ICommand LoadDataCommand { get; }
         /// <summary>
+        /// Команда синхронизации файлов заметок с бд
+        /// </summary>
+        public ICommand SyncCommand { get; }
+        /// <summary>
         /// Команда закрытия окна
         /// </summary>
         public ICommand CloseCommand { get; }
 
 
         public MainWindowModel(ILogger<MainWindowModel> logger, IConfiguration config,
-            SessionService sessionService, WindowsService windowsService,
+            SessionService sessionService, WindowsService windowsService, SyncService syncService,
             INoteService noteService, INoteTypeService noteTypeService)
         {
             _logger = logger;
@@ -95,6 +100,7 @@ namespace MemoirDraft.ViewModels
 
             _sessionService = sessionService;
             _windowsService = windowsService;
+            _syncService = syncService;
 
             _noteService = noteService;
             _noteTypeService = noteTypeService;
@@ -127,6 +133,11 @@ namespace MemoirDraft.ViewModels
             );
             LoadDataCommand = new RelayCommandAsync(
                 execute: () => TryRunTaskAsync(LoadDataAsync, "Ошибка загрузки данных"),
+                canExecute: () => !IsBusy
+            );
+
+            SyncCommand = new RelayCommandAsync(
+                execute: () => TryRunTaskAsync(SyncAsync, "Ошибка синхронизации файлов с бд"),
                 canExecute: () => !IsBusy
             );
 
@@ -198,12 +209,6 @@ namespace MemoirDraft.ViewModels
         {
             if (_sessionService.NoAuth)
                 await _sessionService.LoadUser();
-
-            //if (_sessionService.CurrentUser == null)
-            //{
-            //    ErrorMessage = "Не удалось загрузить пользователя. Проверьте подключение к БД.";
-            //    return;
-            //}
 
             await LoadFiltersAsync();
             await LoadNotesAsync();
@@ -301,6 +306,34 @@ namespace MemoirDraft.ViewModels
                 var target = Notes.FirstOrDefault(n => n.Id == noteDto.Id);
                 if (target != null)
                     target.IsFavorite = note.IsFavorite;
+            }
+        }
+
+        /// <summary>
+        /// Синхронизация заметок из режима FileOnly с базой данных
+        /// </summary>
+        private async Task SyncAsync()
+        {
+            var userId = _sessionService.CurrentUser?.Id ?? 0;
+            if (userId == 0)
+            {
+                ErrorMessage = "Пользователь не авторизован";
+                return;
+            }
+
+            try
+            {
+                var added = await _syncService.SyncFromFileOnlyToDatabaseAsync(userId);
+
+                await LoadNotesAsync();
+                
+                MessageBox.Show($"Синхронизировано {added} заметок", "Успех",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Ошибка синхронизации: {ex.Message}";
+                _logger.LogError(ex, "Ошибка синхронизации");
             }
         }
 

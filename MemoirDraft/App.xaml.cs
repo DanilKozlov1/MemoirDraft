@@ -53,6 +53,8 @@ namespace MemoirDraft
                 var config = provider.GetRequiredService<IConfiguration>();
                 return new FileStorageService(logger, config, storageMode);
             });
+            services.AddSingleton<SyncService>();
+
             services.AddScoped<IUserService, UserService>();
         }
 
@@ -141,6 +143,7 @@ namespace MemoirDraft
                 var connectionString = config.GetConnectionString("Default");
                 var optionsBuilder = new DbContextOptionsBuilder<AppDBContext>();
                 optionsBuilder.UseNpgsql(connectionString);
+
                 using var testContext = new AppDBContext(optionsBuilder.Options);
                 dbAvailable = testContext.Database.CanConnect();
             }
