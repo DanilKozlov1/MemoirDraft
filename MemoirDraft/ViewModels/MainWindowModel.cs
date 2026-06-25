@@ -6,6 +6,7 @@ using MemoirDraft.Utils;
 using MemoirDraft.ViewModels.Abstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
@@ -23,6 +24,7 @@ namespace MemoirDraft.ViewModels
         private readonly SessionService _sessionService;
         private readonly WindowsService _windowsService;
         private readonly SyncService _syncService;
+        private readonly IDataPortService _dataPortService;
 
         private readonly INoteService _noteService;
         private readonly INoteTypeService _noteTypeService;
@@ -86,13 +88,17 @@ namespace MemoirDraft.ViewModels
         /// </summary>
         public ICommand SyncCommand { get; }
         /// <summary>
+        /// Команда импорта заметки
+        /// </summary>
+        public ICommand ImportCommand { get; }
+        /// <summary>
         /// Команда закрытия окна
         /// </summary>
         public ICommand CloseCommand { get; }
 
 
         public MainWindowModel(ILogger<MainWindowModel> logger, IConfiguration config,
-            SessionService sessionService, WindowsService windowsService, SyncService syncService,
+            SessionService sessionService, WindowsService windowsService, SyncService syncService, IDataPortService dataPortService,
             INoteService noteService, INoteTypeService noteTypeService)
         {
             _logger = logger;
@@ -101,6 +107,7 @@ namespace MemoirDraft.ViewModels
             _sessionService = sessionService;
             _windowsService = windowsService;
             _syncService = syncService;
+            _dataPortService = dataPortService;
 
             _noteService = noteService;
             _noteTypeService = noteTypeService;
@@ -138,6 +145,11 @@ namespace MemoirDraft.ViewModels
 
             SyncCommand = new RelayCommandAsync(
                 execute: () => TryRunTaskAsync(SyncAsync, "Ошибка синхронизации файлов с бд"),
+                canExecute: () => !IsBusy
+            );
+
+            ImportCommand = new RelayCommandAsync(
+                execute: () => TryRunTaskAsync(ImportAsync, "Ошибка импорта"),
                 canExecute: () => !IsBusy
             );
 
@@ -336,6 +348,55 @@ namespace MemoirDraft.ViewModels
             {
                 ErrorMessage = $"Ошибка синхронизации: {ex.Message}";
                 _logger.LogError(ex, "Ошибка синхронизации");
+            }
+        }
+
+        /// <summary>
+        /// Импорт заметки
+        /// </summary>
+        private async Task ImportAsync()
+        {
+            var dialog = new OpenFileDialog
+            {
+                Filter = "Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*",
+                DefaultExt = "txt",
+                Title = "Выберите файл для импорта"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                var result = MessageBox.Show(
+                    "Импортировать как TODO-заметку?\n\n" +
+                    "Да — каждая строка файла станет пунктом списка задач.\n" +
+                    "Нет — весь текст файла станет содержимым обычной заметки.",
+                    "Выбор типа",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question
+                );
+                bool isTodo = (result == MessageBoxResult.Yes);
+
+                try
+                {
+                    var imported = await _dataPortService.ImportNoteAsync(
+                        dialog.FileName,
+                        _sessionService.CurrentUser?.Id ?? 0,
+                        isTodo
+                    );
+
+                    if (imported != null)
+                    {
+                        await _noteService.CreateAsync(imported);
+                        await LoadNotesAsync();
+
+                        MessageBox.Show("Заметка успешно импортирована", "Успех",
+                            MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = $"Ошибка импорта: {ex.Message}";
+                    _logger.LogError(ex, "Ошибка импорта");
+                }
             }
         }
 

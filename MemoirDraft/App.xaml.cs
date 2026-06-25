@@ -53,7 +53,10 @@ namespace MemoirDraft
                 var config = provider.GetRequiredService<IConfiguration>();
                 return new FileStorageService(logger, config, storageMode);
             });
+
             services.AddSingleton<SyncService>();
+            
+            services.AddScoped<IDataPortService, DataPortService>();
 
             services.AddScoped<IUserService, UserService>();
         }
