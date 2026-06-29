@@ -26,6 +26,8 @@ MemoirDraft/
 │
 ├── Docs/                             # Документация
 │
+├── Scripts/                          # Скрипты   
+│
 └── MemoirDraft/
     ├── App.xaml
     ├── App.xaml.cs                       # DI
@@ -100,9 +102,9 @@ MemoirDraft/
 ```
 Docs/
 ├── App-Modes.md              # Описание режимов работы приложения
-├── Architecture.md           # Mermaid диаграммы 
-├── Docker-Database.md        # Инструкция по запуску бд в контейнере Docker  
-└──
+├── Architecture.md           # Mermaid-диаграммы 
+├── Backup-Restore-Guide.md   # Инструкция для скриптов **backup.sh** и **restore.sh**
+└── Docker-Database.md        # Инструкция по запуску бд в контейнере Docker  
 ```
 
 ---
