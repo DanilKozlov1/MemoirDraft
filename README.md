@@ -99,13 +99,10 @@ MemoirDraft/
 ## Документация
 
 Вся документация находится в папке Docs. Файлы документации:
-```
-Docs/
-├── App-Modes.md              # Описание режимов работы приложения
-├── AppSettings.md            # Описание файла appsettings.json
-├── Architecture.md           # Mermaid-диаграммы 
-├── Backup-Restore-Guide.md   # Инструкция для скриптов **backup.sh** и **restore.sh**
-└── Docker-Database.md        # Инструкция по запуску бд в контейнере Docker  
-```
+- [App-Modes.md](https://github.com/DanilKozlov1/MemoirDraft/blob/main/Docs/App-Modes.md) - Описание режимов работы приложения.
+- [AppSettings.md](https://github.com/DanilKozlov1/MemoirDraft/blob/main/Docs/App-Modes.md) - Описание файла appsettings.json.
+- [Architecture.md](https://github.com/DanilKozlov1/MemoirDraft/blob/main/Docs/Architecture.md) - Mermaid-диаграммы.
+- [Backup-Restore-Guide.md](https://github.com/DanilKozlov1/MemoirDraft/blob/main/Docs/Backup-Restore-Guide.md) - Инструкция для скриптов **backup.sh** и **restore.sh**.
+- [Docker-Database.md](https://github.com/DanilKozlov1/MemoirDraft/blob/main/Docs/Docker-Database.md) - Инструкция по запуску бд в контейнере Docker. 
 
 ---
