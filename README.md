@@ -102,6 +102,7 @@ MemoirDraft/
 ```
 Docs/
 ├── App-Modes.md              # Описание режимов работы приложения
+├── AppSettings.md            # Описание файла appsettings.json
 ├── Architecture.md           # Mermaid-диаграммы 
 ├── Backup-Restore-Guide.md   # Инструкция для скриптов **backup.sh** и **restore.sh**
 └── Docker-Database.md        # Инструкция по запуску бд в контейнере Docker  
