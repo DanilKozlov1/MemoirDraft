@@ -140,31 +140,26 @@ namespace MemoirDraft
 
             var storageMode = config.GetValue<string>("Storage:Mode") ?? "DatabaseAndFile";
 
-            bool dbAvailable = false;
-            try
+            if (storageMode != "FileOnly")
             {
-                var connectionString = config.GetConnectionString("Default");
-                var optionsBuilder = new DbContextOptionsBuilder<AppDBContext>();
-                optionsBuilder.UseNpgsql(connectionString);
+                try
+                {
+                    var connectionString = config.GetConnectionString("Default");
+                    var optionsBuilder = new DbContextOptionsBuilder<AppDBContext>();
+                    optionsBuilder.UseNpgsql(connectionString);
 
-                using var testContext = new AppDBContext(optionsBuilder.Options);
-                dbAvailable = testContext.Database.CanConnect();
-            }
-            catch
-            {
-                dbAvailable = false;
-            }
-
-            if (!dbAvailable && storageMode != "FileOnly")
-            {
-                Log.ForContext("SourceContext", "App")
-                    .Warning("База данных недоступна. Автоматическое переключение на режим FileOnly.");
-                storageMode = "FileOnly";
+                    using var initContext = new AppDBContext(optionsBuilder.Options);
+                    initContext.Database.Migrate();
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Ошибка БД: {ex.Message}");
+                    storageMode = "FileOnly";
+                }
             }
 
             var services = new ServiceCollection();
             services.AddSingleton<IConfiguration>(config);
-
             SerilogConfigurator.ConfigureLogging(services, config);
 
             services.AddDbContext<AppDBContext>(options =>
@@ -174,60 +169,26 @@ namespace MemoirDraft
             AddBaseServices(services, storageMode);
 
             SetStorageMode(services, storageMode);
-
+            
             AddViewModels(services);
             AddViews(services);
 
             Services = services.BuildServiceProvider();
 
-            try
-            {
-                using var scope = Services.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<AppDBContext>();
+            if (storageMode == "FileOnly")
+                Log.ForContext("SourceContext", "App").Warning("Запуск в режиме FileOnly (БД недоступна или отключена).");
+            else
+                Log.ForContext("SourceContext", "App").Information("Успешный запуск. База данных PostgreSQL готова к работе.");
 
-                if (storageMode != "FileOnly")
-                {
-                    if (db.Database.CanConnect())
-                    {
-                        Log.ForContext("SourceContext", "App")
-                            .Information("Успешное подключение к СУБД PostgreSQL.");
-                        db.Database.Migrate();
-                    }
-                    else
-                    {
-                        Log.ForContext("SourceContext", "App")
-                            .Fatal("КРИТИЧЕСКАЯ ОШИБКА: База данных PostgreSQL недоступна.");
-                        MessageBox.Show("Ошибка запуска. Проверьте логи.", "Ошибка",
-                            MessageBoxButton.OK, MessageBoxImage.Error);
-                        Shutdown();
-                        return;
-                    }
-                }
-                else
-                {
-                    Log.ForContext("SourceContext", "App")
-                        .Information("Запуск в режиме FileOnly (БД не используется).");
-                }
+            var startupScope = Services.CreateScope();
+            Window win = startupScope.ServiceProvider.GetRequiredService<MainWindow>();
 
-                var startupScope = Services.CreateScope();
+            if (config.GetValue<string>("Settings:AppMode") == "Auth")
+                win = startupScope.ServiceProvider.GetRequiredService<AuthorizationView>();
 
-                Window win = startupScope.ServiceProvider.GetRequiredService<MainWindow>();
-                if (config.GetValue<string>("Settings:AppMode") == "Auth")
-                    win = startupScope.ServiceProvider.GetRequiredService<AuthorizationView>();
-
-                Log.ForContext("SourceContext", "App").Information("Приложение запущено.");
-                win.Show();
-            }
-            catch (Exception ex)
-            {
-                Log.ForContext("SourceContext", "App")
-                    .Fatal("Критическая ошибка приложения: {exMessage}", ex);
-                MessageBox.Show("Ошибка запуска. Проверьте логи.", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-
-                Shutdown();
-            }
+            win.Show();
         }
+
 
         protected override void OnExit(ExitEventArgs e)
         {
